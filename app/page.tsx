@@ -481,7 +481,7 @@ export default function Home() {
               </div>
               <div className="max-w-xs md:text-right">
                 <p className="text-white/60 text-base sm:text-lg font-light">
-                  Lebih dari <span className="text-white font-medium">500+</span> bisnis telah membuktikan bagaimana sistem kami mengubah interaksi menjadi konversi nyata.
+                  <span className="text-white font-medium"></span> Banyak dari mereka telah membuktikan bagaimana sistem kami mengubah interaksi menjadi konversi nyata.
                 </p>
               </div>
             </div>
@@ -490,7 +490,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 items-start">
               {[
                 { name: "Andhika Pratama", role: "CEO, TechNova", text: "Organic growth dari platform ini gila banget. Followers naik tajam secara natural tanpa resiko shadowban. Highly recommended!", rating: 5, offset: "" },
-                { name: "Siti Rahma", role: "Owner, BeautyGlow", text: "Terimakasih banyak! Sekarang follower saya nambah drastis.", rating: 4.5, offset: "" },
+                { name: "Siti Rahma", role: "Owner, BeautyGlow", text: "Terimakasih banyak! Sekarang follower saya nambah drastis dan Engagement rate naik 2x lipat dalam sebulan.", rating: 4.5, offset: "" },
                 { name: "Budi Santoso", role: "CMO, Fintech ID", text: "Keren abis. Engagement rate naik 3x lipat dalam sebulan. Sistem analitiknya ngasih insights berharga buat optimize konten.", rating: 4.5, offset: "" },
                 { name: "Dina Lestari", role: "Founder, F&B Local", text: "Sistem automasinya life-saver banget! Usaha nge-handle komen & DM ribuan orang jadi seamless. Rame terus interaksinya.", rating: 5, offset: "" },
                 { name: "Rizky Fauzi", role: "Digital Creator", text: "Mengerikan kecepatannya. Baru post video sejam lalu, push engagement-nya langsung berasa. Algoritma Tiktok nangkep sinyal positif.", rating: 4, offset: "" },
