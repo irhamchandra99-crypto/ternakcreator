@@ -256,7 +256,7 @@ export default function Home() {
             {/* Bottom: Metric Counters */}
             <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-[#1B198F]/10 pt-10 sm:pt-16">
               {[
-                { target: 1, suffix: "M+", label: "Total Viewers", sub: "Jangkauan konten kreator kami" },
+                { target: 10000, suffix: "+", label: "Total Viewers", sub: "Jangkauan konten kreator kami" },
                 { target: 50, suffix: "+", label: "Entrepreneurs", sub: "Dipercaya oleh ratusan pebisnis" },
                 { target: 100, suffix: "+", label: "Content Creators", sub: "Creator aktif di platform kami" },
               ].map((stat, i) => (
