@@ -45,140 +45,267 @@ function RollingNumber({ target, duration = 2000, suffix = "" }: { target: numbe
 }
 
 export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className="w-full min-h-screen relative overflow-hidden bg-[#1B198F] text-white">
-      {/* Circle Blur */}
-      <div className="z-0 absolute top-[-400px] left-[-400px] w-[900px] h-[1000px] bg-[#A9DB1B] rounded-full blur-[150px]"></div>
-      <div className="z-0 absolute top-[400px] right-[-400px] w-[900px] h-[1000px] bg-[#A9DB1B] rounded-full blur-[150px]"></div>
+      {/* Circle Blur — smaller on mobile so green doesn't flood the screen */}
+      <div className="z-0 absolute top-[-100px] sm:top-[-400px] left-[-100px] sm:left-[-400px] w-[200px] sm:w-[900px] h-[200px] sm:h-[1000px] bg-[#A9DB1B] rounded-full blur-[80px] sm:blur-[150px] opacity-40 sm:opacity-100"></div>
+      <div className="z-0 absolute top-[300px] sm:top-[400px] right-[-100px] sm:right-[-400px] w-[200px] sm:w-[900px] h-[200px] sm:h-[1000px] bg-[#A9DB1B] rounded-full blur-[80px] sm:blur-[150px] opacity-40 sm:opacity-100"></div>
 
       <div className="w-full relative z-10 flex flex-col">
-        {/* Hero Section */}
-        <section className="w-full min-h-screen flex flex-col">
-          <nav className="flex justify-between items-center font-sans p-10 mx-20">
-            <h1 className="text-2xl font-bold cursor-pointer">TernakCreator.</h1>
-            <ul className="flex flex-row gap-25 font-thin">
-              <li className="nav-link cursor-pointer">About Us</li>
-              <li className="nav-link cursor-pointer">Pricing</li>
-              <li className="nav-link cursor-pointer">Careers</li>
-              <li className="nav-link cursor-pointer">Testimonials</li>
+        {/* ── HERO SECTION ── */}
+        <section className="w-full min-h-screen flex flex-col relative z-10">
+
+          {/* NAVBAR */}
+          <nav className="flex justify-between items-center font-sans px-5 py-5 sm:px-10 sm:py-8">
+            <h1 className="text-xl sm:text-2xl font-bold cursor-pointer">TernakCreator.</h1>
+
+            {/* Desktop nav links */}
+            <ul className="hidden lg:flex flex-row gap-12 font-light text-white/80">
+              <li className="nav-link cursor-pointer hover:text-white transition-colors"><a href="#about">About Us</a></li>
+              <li className="nav-link cursor-pointer hover:text-white transition-colors"><a href="#pricing">Pricing</a></li>
+              <li className="nav-link cursor-pointer hover:text-white transition-colors"><a href="#careers">Careers</a></li>
+              <li className="nav-link cursor-pointer hover:text-white transition-colors"><a href="#testimonials">Testimonials</a></li>
             </ul>
-            <button className="glass-button font-thin font-sans rounded-full px-5 py-2 cursor-pointer"> Join Now </button>
+
+            {/* Desktop Join Now — hidden on mobile, visible only on desktop */}
+            <div className="hidden lg:block">
+              <a href="#careers" className="glass-button font-light font-sans rounded-full px-6 py-2.5 cursor-pointer">Join Now</a>
+            </div>
+
+            {/* Mobile: hamburger */}
+            <button
+              className="lg:hidden flex flex-col gap-1.5 p-2 focus:outline-none"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
+              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+            </button>
           </nav>
 
-          <div className="flex flex-col items-center justify-center flex-grow mt-[-550px]">
-            <h1 className="font-sans text-md font-bold">
-              From Creator to Entrepreneur.
-            </h1>
-            <p className="z-10 font-sans text-7xl font-thin text-center tracking-tighter mt-[-5px]">
-              One System, Thousands of Creators, <br /> Millions of Interactions.
-            </p>
-            <button className="glass-button font-sans font-thin text-black rounded-full px-5 py-2 cursor-pointer mt-10"> Get Started </button>
-          </div>
+          {/* Mobile dropdown menu */}
+          {menuOpen && (
+            <div className="lg:hidden absolute top-[72px] left-0 right-0 z-50 bg-[#1B198F]/95 backdrop-blur-md border-b border-white/10 px-6 py-6 flex flex-col gap-5">
+              {[
+                { label: 'About Us', href: '#about' },
+                { label: 'Pricing', href: '#pricing' },
+                { label: 'Careers', href: '#careers' },
+                { label: 'Testimonials', href: '#testimonials' },
+              ].map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="text-white/80 hover:text-white text-lg font-medium transition-colors"
+                >
+                  {item.label}
+                </a>
+              ))}
+              <a
+                href="#careers"
+                onClick={() => setMenuOpen(false)}
+                className="mt-2 self-start bg-[#A9DB1B] text-[#1B198F] font-bold px-7 py-3 rounded-full text-base transition-all"
+              >
+                Join Now
+              </a>
+            </div>
+          )}
 
-          <div className="absolute top-55 right-60 flex items-center justify-center">
-            <img src="Phone 1.png" alt="Phone" className="z-0 grayscale w-[80%]" />
+          {/* Hero Content */}
+          <div className="relative flex flex-col items-center justify-center flex-grow text-center px-5 sm:px-8 pb-16 pt-6">
 
-            {/* Floating Glass Cards */}
-            <div className="glass-card absolute top-[20%] right-[40%] z-10 translate-x-10">
-              <span className="text-md">1k+ People Just Following You</span>
+            {/* Decorative orbit rings — hidden on very small screens */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+              <div className="absolute w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full border border-white/5 animate-[spin_30s_linear_infinite]"></div>
+              <div className="absolute w-[420px] sm:w-[700px] h-[420px] sm:h-[700px] rounded-full border border-white/[0.03] animate-[spin_45s_linear_infinite_reverse]"></div>
+              <div className="absolute w-[540px] sm:w-[900px] h-[540px] sm:h-[900px] rounded-full border border-white/[0.02]"></div>
+              <div className="absolute w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] animate-[spin_30s_linear_infinite]">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#A9DB1B]"></div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[#A9DB1B]/50"></div>
+              </div>
+              <div className="absolute w-[420px] sm:w-[700px] h-[420px] sm:h-[700px] animate-[spin_45s_linear_infinite_reverse]">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white/30"></div>
+                <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#A9DB1B]/60"></div>
+              </div>
             </div>
 
-            <div className="glass-card absolute left-[-5%] z-10 -translate-x-10" style={{ animationDelay: '2s' }}>
-              <span className="text-md">Your Video Gets 1k+ Likes</span>
-            </div>
-          </div>
-        </section>
-
-        {/* About Us Section */}
-        <section className="w-full min-h-screen relative flex flex-col items-start justify-center bg-white p-24 overflow-hidden font-sans">
-          {/* Decorative Wavy Lines (SVG) */}
-          <div className="absolute top-0 right-[-5%] w-[40%] text-[#A9DB1B] opacity-80">
-            <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
-              <path
-                d="M0,100 Q100,50 200,100 T400,100"
-                fill="none" stroke="currentColor" strokeWidth="25" strokeLinecap="round"
-                className="translate-y-0"
-              />
-              <path
-                d="M0,150 Q100,100 200,150 T400,150"
-                fill="none" stroke="currentColor" strokeWidth="25" strokeLinecap="round"
-                className="translate-y-10"
-              />
-              <path
-                d="M0,200 Q100,150 200,200 T400,200"
-                fill="none" stroke="currentColor" strokeWidth="25" strokeLinecap="round"
-                className="translate-y-20"
-              />
-            </svg>
-          </div>
-
-          <div className="z-10 max-w-4xl">
-            <h2 className="text-[120px] font-bold leading-[0.9] text-[#A9DB1B] mb-8 tracking-tighter">
-              WHO WE <br /> ARE?
+            {/* Main Headline */}
+            <h2 className="relative z-10 font-sans font-black tracking-tighter leading-[1.0] mb-5 text-5xl sm:text-6xl lg:text-[6rem] xl:text-[7rem] max-w-5xl">
+              Kolaborasi
+              <br />
+              <span
+                className="text-transparent"
+                style={{
+                  WebkitTextStroke: '2px #A9DB1B',
+                  textShadow: '0 0 80px rgba(169,219,27,0.3)',
+                }}
+              >
+                UMKM
+              </span>
+              {" "}
+              <span className="text-[#A9DB1B]">&</span>
+              {" "}
+              <span className="text-white">Kreator.</span>
             </h2>
-            <p className="text-[#A9DB1B] text-5xl font-medium leading-[1.1] tracking-tight max-w-2xl underline decoration-1 underline-offset-8">
-              Designed to help your business increase engagement on social media without getting tired.
+
+            {/* Subtitle */}
+            <p className="relative z-10 font-sans text-base sm:text-xl md:text-2xl font-light leading-relaxed text-white/60 max-w-xl sm:max-w-2xl mb-9">
+              Tingkatkan visibilitas produk dan buat{" "}
+              <span className="text-white font-medium">campaign marketing</span> yang efektif dan terukur bersama ribuan{" "}
+              <span className="text-[#A9DB1B] font-medium">nano-micro creator.</span>
             </p>
+
+            {/* CTA Buttons */}
+            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 w-full">
+              <a href="#pricing" className="w-full sm:w-auto bg-[#A9DB1B] hover:bg-[#c8f020] text-[#1B198F] font-bold px-10 py-4 rounded-full text-base sm:text-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(169,219,27,0.35)] text-center">
+                Mulai Campaign
+              </a>
+              <a
+                href="https://www.instagram.com/reel/DVkpyzFEZSU/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 border border-white/20 hover:border-white/40 text-white font-medium px-8 py-4 rounded-full text-base sm:text-lg transition-all duration-300 hover:bg-white/5 backdrop-blur-sm"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" />
+                </svg>
+                Lihat Demo
+              </a>
+            </div>
+
+            {/* Bottom decorative line */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[200px] sm:w-[600px] h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"></div>
           </div>
 
-          {/* Metrics Section */}
-          <div className="w-[75%] mt-32 flex justify-between items-end self-center">
-            <div className="flex flex-col items-center">
-              <span className="text-7xl font-bold text-[#A9DB1B]">
-                <RollingNumber target={100} suffix="M+" />
-              </span>
-              <span className="text-[#A9DB1B]/60 text-xl font-bold">Viewers</span>
+        </section>
+
+        {/* ── ABOUT US SECTION ── */}
+        <section id="about" className="w-full relative flex flex-col items-center justify-center bg-white overflow-hidden font-sans py-16 sm:py-24 px-5 sm:px-8 lg:px-24">
+          {/* Decorative blobs */}
+          <div className="absolute top-[-150px] right-[-150px] w-[500px] h-[500px] bg-[#A9DB1B] rounded-full blur-[180px] opacity-10 pointer-events-none"></div>
+          <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] bg-[#1B198F] rounded-full blur-[150px] opacity-5 pointer-events-none"></div>
+
+          <div className="relative z-10 w-full max-w-7xl flex flex-col gap-12 sm:gap-20">
+
+            {/* Top: Label + Heading + Description */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 sm:gap-10">
+              <div className="flex flex-col">
+                <span className="text-[#A9DB1B] text-sm font-bold tracking-[0.25em] uppercase mb-4 sm:mb-5 flex items-center gap-3">
+                  <span className="w-8 h-[2px] bg-[#A9DB1B] inline-block"></span>
+                  Who We Are
+                </span>
+                <h2 className="text-4xl sm:text-6xl lg:text-[90px] font-black text-[#1B198F] leading-[0.9] tracking-tighter">
+                  WHO WE <br />
+                  <span className="text-[#A9DB1B]">ARE?</span>
+                </h2>
+              </div>
+              <p className="text-[#1B198F]/50 text-lg sm:text-xl lg:text-2xl font-light leading-relaxed max-w-xl lg:text-right">
+                Designed to help your business{" "}
+                <span className="text-[#1B198F] font-medium">increase engagement</span> on social media
+                without getting tired.
+              </p>
             </div>
 
-            <div className="flex flex-col items-center">
-              <span className="text-xl text-[#A9DB1B]/60 mb-4">Chosen by</span>
-              <span className="text-7xl font-bold text-[#A9DB1B]">
-                <RollingNumber target={500} suffix="+" />
-              </span>
-              <span className="text-[#A9DB1B]/60 text-xl font-bold">Entrepreneurs</span>
+            {/* Middle: Feature Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
+              {[
+                {
+                  icon: (
+                    <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
+                  ),
+                  title: "Organic Growth",
+                  desc: "Semua pertumbuhan audiens Anda terjadi secara alami — tanpa bot, tanpa risiko banned."
+                },
+                {
+                  icon: (
+                    <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+                    </svg>
+                  ),
+                  title: "Efisien & Cepat",
+                  desc: "Hemat waktu dan tenaga. Sistem kami bekerja 24/7 sehingga Anda bisa fokus berkreasi."
+                },
+                {
+                  icon: (
+                    <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                  ),
+                  title: "Komunitas Besar",
+                  desc: "Bergabunglah bersama ribuan entrepreneur dan creator yang sudah membuktikan hasilnya."
+                },
+              ].map((card, i) => (
+                <div
+                  key={i}
+                  className="group flex flex-col gap-5 p-6 sm:p-8 rounded-3xl border border-[#1B198F]/10 bg-white shadow-sm hover:shadow-md hover:border-[#A9DB1B]/60 transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-[#A9DB1B]/15 flex items-center justify-center text-[#A9DB1B] group-hover:bg-[#A9DB1B]/25 transition-colors duration-300">
+                    {card.icon}
+                  </div>
+                  <h3 className="text-[#1B198F] font-bold text-xl">{card.title}</h3>
+                  <p className="text-[#1B198F]/50 text-base leading-relaxed">{card.desc}</p>
+                </div>
+              ))}
             </div>
 
-            <div className="flex flex-col items-center">
-              <span className="text-7xl font-bold text-[#A9DB1B]">
-                <RollingNumber target={1000} suffix="+" />
-              </span>
-              <span className="text-[#A9DB1B]/60 text-xl font-bold">Content Creators</span>
+            {/* Bottom: Metric Counters */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-[#1B198F]/10 pt-10 sm:pt-16">
+              {[
+                { target: 1, suffix: "M+", label: "Total Viewers", sub: "Jangkauan konten kreator kami" },
+                { target: 50, suffix: "+", label: "Entrepreneurs", sub: "Dipercaya oleh ratusan pebisnis" },
+                { target: 100, suffix: "+", label: "Content Creators", sub: "Creator aktif di platform kami" },
+              ].map((stat, i) => (
+                <div key={i} className="flex flex-col items-center text-center gap-1 sm:gap-2 group">
+                  <span className="text-3xl sm:text-5xl lg:text-7xl font-black text-[#A9DB1B] tabular-nums transition-transform group-hover:scale-105 duration-300">
+                    <RollingNumber target={stat.target} suffix={stat.suffix} />
+                  </span>
+                  <span className="text-[#1B198F] font-bold text-sm sm:text-lg lg:text-xl">{stat.label}</span>
+                  <span className="text-[#1B198F]/40 text-xs sm:text-sm hidden sm:block">{stat.sub}</span>
+                </div>
+              ))}
             </div>
+
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section className="w-full min-h-screen relative flex flex-col items-center justify-center bg-[#1B198F] p-24 overflow-hidden font-sans">
+        {/* ── PRICING SECTION ── */}
+        <section id="pricing" className="w-full relative flex flex-col items-center justify-center bg-[#1B198F] py-16 sm:py-24 px-5 sm:px-8 lg:p-24 overflow-hidden font-sans">
           {/* Bottom Glow Effect */}
           <div className="z-0 absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-[#A9DB1B] rounded-full blur-[180px] opacity-20"></div>
 
-          <div className="z-10 text-center mb-16">
-            <h2 className="text-7xl font-bold text-white mb-6 tracking-tight">
+          <div className="z-10 text-center mb-10 sm:mb-16 px-2">
+            <h2 className="text-3xl sm:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight">
               The Perfect Price for Your Needs
             </h2>
-            <p className="text-white/70 text-xl max-w-2xl mx-auto leading-relaxed">
+            <p className="text-white/70 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed">
               Our transparent pricing makes it easy to find a plan that works within your financial constraints.
             </p>
           </div>
 
-          <div className="z-10 flex gap-8 w-full max-w-7xl justify-center items-center">
-            {/* Best Selling Card */}
-            <div className="pricing-card group relative w-[33%] min-h-[550px] bg-white/5 backdrop-blur-xl border border-white/20 rounded-[32px] p-8 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/10 hover:border-white/40">
+          {/* Pricing Cards — stack on mobile, row on lg */}
+          <div className="z-10 flex flex-col lg:flex-row gap-6 sm:gap-8 w-full max-w-5xl justify-center items-stretch lg:items-center">
+            {/* Paket Start */}
+            <div className="pricing-card group relative w-full lg:w-[33%] bg-white/5 backdrop-blur-xl border border-white/20 rounded-[32px] p-7 sm:p-8 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/10 hover:border-white/40">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#A9DB1B]/20 pointer-events-none"></div>
 
-              <div className="self-center bg-[#8CBF00] px-8 py-2 rounded-full mb-10 shadow-lg">
-                <span className="text-white font-medium text-sm">Best Selling</span>
+              <div className="self-center bg-[#8CBF00] px-8 py-2 rounded-full mb-8 shadow-lg">
+                <span className="text-white font-medium text-sm">Paket Start</span>
               </div>
 
-              <div className="mb-8">
-                <span className="text-white/40 line-through text-lg block">Rp1.500.000</span>
-                <span className="text-white text-5xl font-bold">Rp999.000</span>
+              <div className="mb-6">
+                <span className="text-white/40 line-through text-lg block">Rp250.000</span>
+                <span className="text-white text-4xl sm:text-5xl font-bold">Rp199.000</span>
               </div>
 
               <div className="flex-grow">
                 <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
                 <ul className="space-y-3">
-                  {['Exclusive Modul', 'Big Community', 'Monetize Guide', 'Collab Opportunities'].map((item, idx) => (
+                  {['10.000+ Views', 'Organic Content', '100% Safe', 'No Banned'].map((item, idx) => (
                     <li key={idx} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
                       <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
@@ -189,29 +316,29 @@ export default function Home() {
                 </ul>
               </div>
 
-              <button className="self-center flex items-center gap-2 bg-[#8CBF00] text-white px-8 py-3 rounded-full font-medium transition-all hover:scale-105 active:scale-95 shadow-lg">
+              <a href="https://wa.me/6289685482928" target="_blank" rel="noopener noreferrer" className="mt-8 self-center flex items-center gap-2 bg-[#8CBF00] text-white px-8 py-3 rounded-full font-medium transition-all hover:scale-105 active:scale-95 shadow-lg">
                 Buy Now
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
-              </button>
+              </a>
             </div>
 
-            {/* Custom Card (Center - Highlighted) */}
-            <div className="pricing-card group relative w-[33%] min-h-[600px] bg-white/10 backdrop-blur-2xl border border-white/30 rounded-[32px] p-10 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/15 hover:border-white/50 scale-105 shadow-2xl">
+            {/* Paket Growth (Featured) */}
+            <div className="pricing-card group relative w-full lg:w-[33%] bg-white/10 backdrop-blur-2xl border border-white/30 rounded-[32px] p-8 sm:p-10 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/15 hover:border-white/50 lg:scale-105 shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#A9DB1B]/30 pointer-events-none"></div>
 
-              <div className="self-center bg-[#A9DB1B] px-10 py-2 rounded-full mb-12 shadow-xl">
-                <span className="text-white font-bold text-sm">Custom</span>
+              <div className="self-center bg-[#A9DB1B] px-10 py-2 rounded-full mb-10 shadow-xl">
+                <span className="text-white font-bold text-sm">Paket Growth</span>
               </div>
 
               <div className="mb-5">
-                <span className="text-white/70 text-lg block font-medium">Start From</span>
-                <span className="text-white text-5xl font-bold tracking-tight">Rp1.000.000</span>
+                <span className="text-white/70 text-lg block font-medium">Only With</span>
+                <span className="text-white text-4xl sm:text-5xl font-bold tracking-tight">Rp349.000</span>
               </div>
 
               <div className="flex-grow">
                 <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
                 <ul className="space-y-3">
-                  {['Exclusive Modul', 'Big Community', 'Monetize Guide', 'Collab Opportunities'].map((item, idx) => (
+                  {['100.000+ Views', 'Organic Content', '100% Safe', 'No Banned'].map((item, idx) => (
                     <li key={idx} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
                       <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
@@ -222,29 +349,29 @@ export default function Home() {
                 </ul>
               </div>
 
-              <button className="self-center flex justify-between gap-2 bg-[#A9DB1B] text-white px-10 py-3 rounded-full font-bold transition-all hover:scale-105 active:scale-95 shadow-xl">
+              <a href="https://wa.me/6289685482928" target="_blank" rel="noopener noreferrer" className="mt-8 self-center flex justify-between gap-2 bg-[#A9DB1B] text-white px-10 py-3 rounded-full font-bold transition-all hover:scale-105 active:scale-95 shadow-xl">
                 View All
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
-              </button>
+              </a>
             </div>
 
-            {/* Best Seller Card */}
-            <div className="pricing-card group relative w-[33%] min-h-[550px] bg-white/5 backdrop-blur-xl border border-white/20 rounded-[32px] p-8 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/10 hover:border-white/40">
+            {/* Paket Viral */}
+            <div className="pricing-card group relative w-full lg:w-[33%] bg-white/5 backdrop-blur-xl border border-white/20 rounded-[32px] p-7 sm:p-8 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/10 hover:border-white/40">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#A9DB1B]/20 pointer-events-none"></div>
 
-              <div className="self-center bg-[#8CBF00] px-8 py-2 rounded-full mb-10 shadow-lg">
-                <span className="text-white font-medium text-sm">Best Seller</span>
+              <div className="self-center bg-[#8CBF00] px-8 py-2 rounded-full mb-8 shadow-lg">
+                <span className="text-white font-medium text-sm">Paket Viral</span>
               </div>
 
               <div className="mb-5">
-                <span className="text-white/40 line-through text-lg block">Rp6.000.000</span>
-                <span className="text-white text-5xl font-bold">Rp5.000.000</span>
+                <span className="text-white/40 line-through text-lg block">Rp1.000.000</span>
+                <span className="text-white text-4xl sm:text-5xl font-bold">Rp499.000</span>
               </div>
 
               <div className="flex-grow">
                 <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
                 <ul className="space-y-3">
-                  {['Exclusive Modul', 'Big Community', 'Monetize Guide', 'Collab Opportunities'].map((item, idx) => (
+                  {['100.000+ Views', 'Organic Content', '100% Safe', 'No Banned'].map((item, idx) => (
                     <li key={idx} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
                       <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
@@ -255,62 +382,43 @@ export default function Home() {
                 </ul>
               </div>
 
-              <button className="self-center flex items-center gap-2 bg-[#8CBF00] text-white px-8 py-3 rounded-full font-medium transition-all hover:scale-105 active:scale-95 shadow-lg">
+              <a href="https://wa.me/6289685482928" target="_blank" rel="noopener noreferrer" className="mt-8 self-center flex items-center gap-2 bg-[#8CBF00] text-white px-8 py-3 rounded-full font-medium transition-all hover:scale-105 active:scale-95 shadow-lg">
                 Buy Now
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
-              </button>
+              </a>
             </div>
           </div>
         </section>
 
-        {/* Premium Careers Section (AI Version) */}
-        <section className="w-full min-h-screen relative flex flex-col items-center justify-center bg-[#FAFAFA] p-24 overflow-hidden font-sans border-t border-black/5">
-          {/* Decorative Floating Blobs for Soft Depth */}
+        {/* ── CAREERS SECTION ── */}
+        <section id="careers" className="w-full relative flex flex-col items-center justify-center bg-[#FAFAFA] py-16 sm:py-24 px-5 sm:px-8 lg:p-24 overflow-hidden font-sans border-t border-black/5">
+          {/* Decorative Floating Blobs */}
           <div className="z-0 absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-[#A9DB1B]/10 rounded-full blur-[120px]"></div>
           <div className="z-0 absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-[#1B198F]/5 rounded-full blur-[100px]"></div>
 
-          <div className="z-10 w-full max-w-7xl flex flex-col lg:flex-row items-center justify-between gap-20">
-            {/* Left Column: Typography & Title */}
+          <div className="z-10 w-full max-w-7xl flex flex-col lg:flex-row items-center justify-between gap-12 sm:gap-20">
+            {/* Left Column */}
             <div className="w-full lg:w-1/2 flex flex-col items-start">
-              <span className="text-[#A9DB1B] font-bold tracking-widest uppercase mb-4 text-sm">Join the Revolution</span>
-              <h2 className="text-[100px] font-black leading-[0.8] text-[#1B198F] tracking-tighter mb-10">
+              <span className="text-[#A9DB1B] font-bold tracking-widest uppercase mb-3 text-sm">Join the Revolution</span>
+              <h2 className="text-6xl sm:text-7xl lg:text-[100px] font-black leading-[0.85] text-[#1B198F] tracking-tighter mb-8 sm:mb-10">
                 START <br /> YOUR <br /> <span className="text-[#A9DB1B]">CAREER.</span>
               </h2>
-              <p className="text-[#1B198F]/60 text-xl font-medium max-w-md leading-relaxed">
+              <p className="text-[#1B198F]/60 text-base sm:text-xl font-medium max-w-md leading-relaxed">
                 Jadilah bagian dari ekosistem konten kreator. Kami tidak hanya menawarkan pekerjaan, tapi sebuah perjalanan untuk menjadi <span className="text-[#1B198F] font-bold">Creator-Entrepreneur</span> sejati.
               </p>
-
-              <div className="mt-12 flex gap-4">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-gray-200 overflow-hidden">
-                      <img src={`https://i.pravatar.cc/150?u=${i}`} alt="user" className="w-full h-full object-cover grayscale" />
-                    </div>
-                  ))}
-                  <div className="w-12 h-12 rounded-full border-4 border-white bg-[#A9DB1B] flex items-center justify-center text-white font-bold text-xs">
-                    +12k
-                  </div>
-                </div>
-                <div className="flex flex-col justify-center">
-                  <span className="text-[#1B198F] font-bold text-sm">Join 12,000+ others</span>
-                  <span className="text-[#1B198F]/40 text-xs">already building their future</span>
-                </div>
-              </div>
             </div>
 
-            {/* Right Column: Premium Interactive Card */}
+            {/* Right Column: Membership Card */}
             <div className="w-full lg:w-1/2 relative group">
-              {/* Card Shadow/Glow Background */}
               <div className="absolute -inset-4 bg-gradient-to-r from-[#A9DB1B]/20 to-[#1B198F]/10 rounded-[48px] blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
 
-              <div className="relative w-full aspect-[4/5] bg-white rounded-[40px] shadow-2xl overflow-hidden border border-black/5 flex flex-col">
-                {/* Card Header Gradient */}
+              <div className="relative w-full bg-white rounded-[40px] shadow-2xl overflow-hidden border border-black/5 flex flex-col">
                 <div className="h-2 w-full bg-gradient-to-r from-[#1B198F] to-[#A9DB1B]"></div>
 
-                <div className="p-12 flex flex-col h-full">
-                  <div className="flex justify-between items-start mb-12">
+                <div className="p-8 sm:p-12 flex flex-col">
+                  <div className="flex justify-between items-start mb-8 sm:mb-12">
                     <div className="flex flex-col">
-                      <span className="text-[#1B198F] font-bold text-2xl">Ternak Creator.</span>
+                      <span className="text-[#1B198F] font-bold text-xl sm:text-2xl">Ternak Creator.</span>
                       <span className="text-[#1B198F]/40 text-sm font-medium">Professional Access</span>
                     </div>
                     <div className="bg-[#A9DB1B]/10 text-[#A9DB1B] px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
@@ -318,12 +426,13 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="flex-grow flex flex-col justify-center">
+                  <div className="flex flex-col mb-6">
                     <h4 className="text-[#1B198F]/40 text-lg font-medium mb-1">Lifetime Membership</h4>
-                    <div className="flex items-baseline gap-4 mb-4">
-                      <span className="text-[#1B198F] text-7xl font-black tracking-tight">Rp2.500.000</span>
+                    <div className="flex flex-col mb-4">
+                      <span className="text-[#1B198F]/40 line-through text-2xl sm:text-3xl font-bold">Rp999.000</span>
+                      <span className="text-[#1B198F] text-6xl sm:text-7xl font-black tracking-tight">Free</span>
                     </div>
-                    <p className="text-[#1B198F]/50 text-base leading-relaxed mb-8">
+                    <p className="text-[#1B198F]/50 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8">
                       Dapatkan akses penuh ke komunitas eksklusif, dan Modul Pembelajaran Eksklusif seumur hidup.
                     </p>
 
@@ -339,86 +448,133 @@ export default function Home() {
                     </ul>
                   </div>
 
-                  <button className="mt-auto w-full group relative overflow-hidden bg-[#1B198F] text-white py-6 rounded-2xl font-bold text-xl transition-all hover:shadow-[0_20px_40px_rgba(27,25,143,0.3)] hover:-translate-y-1 active:scale-[0.98]">
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSdFJyxcZ1cudvbxsje1iHcGH7me8rlAdqQGHi4j3UnnKtEupA/viewform" target="_blank" rel="noopener noreferrer" className="block w-full group relative overflow-hidden bg-[#1B198F] text-white py-5 rounded-2xl font-bold text-lg sm:text-xl transition-all hover:shadow-[0_20px_40px_rgba(27,25,143,0.3)] hover:-translate-y-1 active:scale-[0.98] text-center">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                     Dapatkan Akses Sekarang
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Testimonials Section */}
-        <section className="w-full min-h-screen relative flex flex-col items-center justify-center bg-[#1B198F] p-10 overflow-hidden font-sans">
-          {/* Decorative Glows */}
-          <div className="z-0 absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#A9DB1B]/20 rounded-full blur-[150px]"></div>
-          <div className="z-0 absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-white/5 rounded-full blur-[120px]"></div>
+        {/* ── TESTIMONIALS SECTION ── */}
+        <section id="testimonials" className="w-full relative flex flex-col items-center justify-center bg-[#1B198F] py-16 sm:py-32 px-5 sm:px-6 lg:px-20 overflow-hidden font-sans">
+          {/* Decorative Background Elements */}
+          <div className="absolute top-10 right-10 w-[600px] h-[600px] bg-[#A9DB1B] rounded-full blur-[200px] opacity-10 pointer-events-none"></div>
+          <div className="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-white rounded-full blur-[180px] opacity-[0.05] pointer-events-none"></div>
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '100px 100px' }}></div>
 
-          <div className="z-10 text-center mb-20">
-            <span className="text-[#A9DB1B] font-bold tracking-[0.2em] uppercase text-sm mb-[-6px] block">Trusted by Entrepreneur</span>
-            <h2 className="text-7xl font-bold text-white tracking-tight leading-tight mb-[-24px]">
-              What They Say <br /> About Us
-            </h2>
-          </div>
+          <div className="relative z-10 w-full max-w-7xl flex flex-col gap-12 sm:gap-20">
 
-          <div className="z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-7xl px-2">
-            {[
-              { name: "Andhika Pratama", role: "Owner Business XX", text: "Mantap", rating: 5 },
-              { name: "Siti Rahma", role: "Owner Business XX", text: "Terimakasi, sekarang <br/> follower saya nambah <br/> 400 dalam 1 minggu", rating: 5 },
-              { name: "Budi Santoso", role: "Owner Business XX", text: "Keren", rating: 5 },
-              { name: "Dina Lestari", role: "Owner Business XX", text: "Rame cuy Usaha saya", rating: 5 },
-              { name: "Rizky Fauzi", role: "Owner Business XX", text: "Mengerikan", rating: 5 },
-              { name: "Maya Indah", role: "Owner Business XX", text: "Sheesh!", rating: 5 }
-            ].map((testi, i) => (
-              <div key={i} className="glass-card group flex flex-col p-10 rounded-[40px] bg-white/5 backdrop-blur-2xl border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-500 hover:-translate-y-3 shadow-2xl h-full">
-                <div className="flex gap-1.5 mb-8">
-                  {[...Array(testi.rating)].map((_, i) => (
-                    <svg key={i} className="w-6 h-6 text-[#A9DB1B] drop-shadow-[0_0_8px_rgba(169,219,27,0.5)]" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
+            {/* Header */}
+            <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 sm:gap-10 border-b border-white/10 pb-8 sm:pb-10">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="w-10 h-[2px] bg-[#A9DB1B] inline-block"></span>
+                  <span className="text-[#A9DB1B] font-bold tracking-[0.2em] uppercase text-sm">Trusted</span>
                 </div>
-
-                <p
-                  className="text-white/80 text-xl leading-relaxed mb-10 font-medium italic"
-                  dangerouslySetInnerHTML={{ __html: `"${testi.text}"` }}
-                />
-
-                <div className="mt-auto flex items-center gap-5">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden ring-4 ring-white/10 shadow-lg">
-                    <img src={`https://i.pravatar.cc/150?u=${i + 10}`} alt={testi.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                  </div>
-                  <div className="flex flex-col">
-                    <h4 className="text-white font-bold text-lg">{testi.name}</h4>
-                    <span className="text-[#A9DB1B] text-sm font-semibold tracking-wider uppercase">{testi.role}</span>
-                  </div>
-                </div>
+                <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[1]">
+                  What They <span className="text-[#A9DB1B] italic pr-2">Say</span> <br />
+                  About Us
+                </h2>
               </div>
-            ))}
+              <div className="max-w-xs md:text-right">
+                <p className="text-white/60 text-base sm:text-lg font-light">
+                  Lebih dari <span className="text-white font-medium">500+</span> bisnis telah membuktikan bagaimana sistem kami mengubah interaksi menjadi konversi nyata.
+                </p>
+              </div>
+            </div>
+
+            {/* Testimonials Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 items-start">
+              {[
+                { name: "Andhika Pratama", role: "CEO, TechNova", text: "Organic growth dari platform ini gila banget. Followers naik tajam secara natural tanpa resiko shadowban. Highly recommended!", rating: 5, offset: "" },
+                { name: "Siti Rahma", role: "Owner, BeautyGlow", text: "Terimakasih banyak! Sekarang follower saya nambah drastis.", rating: 4.5, offset: "" },
+                { name: "Budi Santoso", role: "CMO, Fintech ID", text: "Keren abis. Engagement rate naik 3x lipat dalam sebulan. Sistem analitiknya ngasih insights berharga buat optimize konten.", rating: 4.5, offset: "" },
+                { name: "Dina Lestari", role: "Founder, F&B Local", text: "Sistem automasinya life-saver banget! Usaha nge-handle komen & DM ribuan orang jadi seamless. Rame terus interaksinya.", rating: 5, offset: "" },
+                { name: "Rizky Fauzi", role: "Digital Creator", text: "Mengerikan kecepatannya. Baru post video sejam lalu, push engagement-nya langsung berasa. Algoritma Tiktok nangkep sinyal positif.", rating: 4, offset: "" },
+                { name: "Maya Indah", role: "E-commerce Manager", text: "Sheesh! ROI terbaik yang pernah saya dapetin. Ads budget bisa ditekan karena organic reachnya luar biasa. Dashboard sangat clean.", rating: 4.5, offset: "" }
+              ].map((testi, i) => (
+                <div
+                  key={i}
+                  className={`relative group flex flex-col p-6 sm:p-8 lg:p-10 rounded-[24px] sm:rounded-[32px] bg-gradient-to-b from-white/[0.08] to-transparent backdrop-blur-md border border-white/10 hover:border-[#A9DB1B]/50 transition-all duration-500 hover:-translate-y-2 shadow-xl hover:shadow-[0_20px_40px_-20px_rgba(169,219,27,0.15)] ${testi.offset}`}
+                >
+                  <div className="absolute top-6 right-8 opacity-10 text-[80px] font-serif leading-none group-hover:text-[#A9DB1B] group-hover:opacity-20 transition-all duration-500 pointer-events-none">
+                    "
+                  </div>
+
+                  <div className="flex gap-1 mb-6 sm:mb-8 z-10">
+                    {[...Array(5)].map((_, idx) => {
+                      const starValue = idx + 1;
+                      if (starValue <= Math.floor(testi.rating)) {
+                        return (
+                          <svg key={idx} className="w-4 h-4 sm:w-5 sm:h-5 text-[#A9DB1B]" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        );
+                      } else if (starValue - 0.5 === testi.rating) {
+                        return (
+                          <div key={idx} className="relative w-4 h-4 sm:w-5 sm:h-5">
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#A9DB1B]/30 absolute inset-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#A9DB1B] absolute inset-0 overflow-hidden" fill="currentColor" viewBox="0 0 20 20" style={{ clipPath: 'inset(0 50% 0 0)' }}>
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <svg key={idx} className="w-4 h-4 sm:w-5 sm:h-5 text-[#A9DB1B]/30" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        );
+                      }
+                    })}
+                  </div>
+
+                  <p className="text-white/80 text-base sm:text-lg leading-relaxed mb-8 sm:mb-10 font-light z-10">
+                    &ldquo;{testi.text}&rdquo;
+                  </p>
+
+                  <div className="mt-auto flex items-center gap-4 pt-5 sm:pt-6 border-t border-white/10 z-10">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden p-[2px] bg-gradient-to-br from-[#A9DB1B] to-transparent">
+                      <div className="w-full h-full rounded-full overflow-hidden bg-[#1B198F]">
+                        <img src={`https://i.pravatar.cc/150?u=${i + 15}`} alt={testi.name} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
+                      </div>
+                    </div>
+                    <div className="flex flex-col">
+                      <h4 className="text-white font-bold tracking-wide text-sm sm:text-base">{testi.name}</h4>
+                      <span className="text-white/50 text-xs font-semibold uppercase tracking-wider mt-0.5">{testi.role}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
           </div>
         </section>
 
-        {/* Footer Section */}
-        <footer className="w-full bg-[#1B198F] pt-24 pb-12 px-24 border-t border-white/5 relative overflow-hidden font-sans">
-          {/* Subtle Background Detail */}
+        {/* ── FOOTER ── */}
+        <footer className="w-full bg-[#1B198F] pt-14 sm:pt-24 pb-10 sm:pb-12 px-5 sm:px-12 lg:px-24 border-t border-white/5 relative overflow-hidden font-sans">
           <div className="z-0 absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-[#A9DB1B]/30 to-transparent"></div>
 
-          <div className="z-10 max-w-7xl mx-auto flex flex-col gap-20">
-            <div className="flex flex-col lg:flex-row justify-between gap-16">
+          <div className="z-10 max-w-7xl mx-auto flex flex-col gap-12 sm:gap-20">
+            <div className="flex flex-col sm:flex-row justify-between gap-10 sm:gap-16">
               {/* Brand Column */}
               <div className="flex flex-col items-start max-w-sm">
-                <h2 className="text-3xl font-bold text-white mb-6">TernakCreator.</h2>
-                <p className="text-white/50 text-lg leading-relaxed mb-8">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6">Ternak Creator.</h2>
+                <p className="text-white/50 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8">
                   Membangun jembatan antara konten kreator dan dunia bisnis. Kami hadir untuk membantu Anda tumbuh lebih cepat dan lebih cerdas.
                 </p>
                 <div className="flex gap-4">
                   {[
-                    { icon: "instagram", link: "#" },
+                    { icon: "instagram", link: "https://www.instagram.com/ternakcreator/" },
                     { icon: "linkedin", link: "#" },
                     { icon: "youtube", link: "#" }
                   ].map((soc, i) => (
-                    <a key={i} href={soc.link} className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#A9DB1B] hover:text-[#1B198F] transition-all duration-300">
+                    <a key={i} href={soc.link} className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#A9DB1B] hover:text-[#1B198F] transition-all duration-300">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="capitalize">
                         {soc.icon === 'instagram' && <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>}
                         {soc.icon === 'instagram' && <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>}
@@ -434,17 +590,17 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Links Sections */}
-              <div className="flex flex-col items-end">
+              {/* Links */}
+              <div className="flex flex-col items-start sm:items-end">
                 {[
                   { title: "Platform", links: ["About Us", "Pricing", "Features"] },
                 ].map((group, i) => (
-                  <div key={i} className="flex flex-col items-end gap-6">
+                  <div key={i} className="flex flex-col items-start sm:items-end gap-4 sm:gap-6">
                     <h4 className="text-white font-bold text-lg">{group.title}</h4>
-                    <ul className="flex flex-col items-end gap-4">
+                    <ul className="flex flex-col items-start sm:items-end gap-3 sm:gap-4">
                       {group.links.map((link, j) => (
                         <li key={j}>
-                          <a href="#" className="text-white/40 hover:text-[#A9DB1B] transition-colors duration-200 text-base font-medium text-right">
+                          <a href="#" className="text-white/40 hover:text-[#A9DB1B] transition-colors duration-200 text-base font-medium">
                             {link}
                           </a>
                         </li>
@@ -456,11 +612,11 @@ export default function Home() {
             </div>
 
             {/* Bottom Bar */}
-            <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
-              <span className="text-white/30 text-sm">
-                &copy; {new Date().getFullYear()} TernakCreator. All rights reserved.
+            <div className="pt-8 sm:pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-8">
+              <span className="text-white/30 text-sm text-center md:text-left">
+                &copy; {new Date().getFullYear()} Ternak Creator. All rights reserved.
               </span>
-              <div className="flex gap-8">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-8">
                 <a href="#" className="text-white/30 hover:text-white transition-colors text-sm">Privacy Policy</a>
                 <a href="#" className="text-white/30 hover:text-white transition-colors text-sm">Terms of Service</a>
                 <a href="#" className="text-white/30 hover:text-white transition-colors text-sm">Cookies Settings</a>
@@ -472,4 +628,3 @@ export default function Home() {
     </div>
   );
 }
-
