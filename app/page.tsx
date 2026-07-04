@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
+import CreatorReviewVideo from "./components/CreatorReviewVideo";
 
 function RollingNumber({ target, duration = 2000, suffix = "" }: { target: number, duration?: number, suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -42,6 +43,101 @@ function RollingNumber({ target, duration = 2000, suffix = "" }: { target: numbe
   }, [hasStarted, target, duration]);
 
   return <span ref={elementRef}>{count}{suffix}</span>;
+}
+
+function CreatorReviewVideo({
+  src,
+  poster,
+  name,
+  role,
+}: {
+  src: string;
+  poster?: string;
+  name: string;
+  role: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const togglePlay = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+  };
+
+  return (
+    <div className="flex flex-col gap-4 group">
+      <div
+        onClick={togglePlay}
+        className="relative w-full aspect-[9/16] rounded-[32px] overflow-hidden bg-[#1B198F] shadow-2xl cursor-pointer select-none border border-black/5"
+      >
+        <video
+          ref={videoRef}
+          src={src}
+          poster={poster}
+          muted={isMuted}
+          playsInline
+          loop
+          className="absolute inset-0 w-full h-full object-cover rounded-[32px]"
+        />
+
+        {/* Play overlay */}
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#1B198F" className="ml-1">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
+        )}
+
+        {/* Mute toggle */}
+        <button
+          onClick={toggleMute}
+          className="absolute bottom-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white hover:bg-black/60 transition-colors z-10"
+          aria-label={isMuted ? "Unmute" : "Mute"}
+        >
+          {isMuted ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+            </svg>
+          )}
+        </button>
+
+        {/* Top gradient for legibility */}
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/30 to-transparent pointer-events-none"></div>
+      </div>
+
+      <div className="flex flex-col items-start px-1">
+        <span className="text-[#1B198F] font-bold text-base">{name}</span>
+        <span className="text-[#1B198F]/50 text-sm font-medium">{role}</span>
+      </div>
+    </div>
+  );
 }
 
 export default function Home() {
@@ -454,6 +550,46 @@ export default function Home() {
                   </a>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* ── CREATOR VIDEO REVIEWS SECTION ── */}
+        <section className="w-full relative flex flex-col items-center justify-center bg-[#FAFAFA] py-16 sm:py-24 px-5 sm:px-8 lg:px-20 overflow-hidden font-sans border-t border-black/5">
+          {/* Decorative Blobs */}
+          <div className="z-0 absolute top-[-15%] right-[-10%] w-[550px] h-[550px] bg-[#1B198F]/5 rounded-full blur-[130px] pointer-events-none"></div>
+          <div className="z-0 absolute bottom-[-10%] left-[-10%] w-[450px] h-[450px] bg-[#A9DB1B]/10 rounded-full blur-[110px] pointer-events-none"></div>
+
+          <div className="relative z-10 w-full max-w-7xl flex flex-col gap-10 sm:gap-16">
+            {/* Header */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-[2px] bg-[#A9DB1B] inline-block"></span>
+                <span className="text-[#1B198F] font-bold tracking-[0.2em] uppercase text-sm">Real Story</span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-[#1B198F] tracking-tighter leading-[0.95]">
+                Cerita Langsung <br />
+                dari <span className="text-[#A9DB1B] italic">Creator</span> Kami.
+              </h2>
+              <p className="text-[#1B198F]/50 text-base sm:text-lg font-medium max-w-lg">
+                Dengar sendiri pengalaman para content creator setelah bergabung dan berkembang bersama Ternak Creator.
+              </p>
+            </div>
+
+            {/* Video Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-10 max-w-3xl mx-auto sm:mx-0">
+              <CreatorReviewVideo
+                src="/reviews/review-1.mp4"
+                poster="/reviews/poster-1.jpg"
+                name="Rizky Fauzi"
+                role="Digital Creator"
+              />
+              <CreatorReviewVideo
+                src="/reviews/review-2.mp4"
+                poster="/reviews/poster-2.jpg"
+                name="Dina Lestari"
+                role="Founder, F&B Local"
+              />
             </div>
           </div>
         </section>
