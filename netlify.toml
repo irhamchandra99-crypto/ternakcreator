@@ -1,5 +1,8 @@
 [build]
   command = "npm run build"
+  # Next.js runtime uses .next (NOT the old static-export "out" dir).
+  # Set here so it overrides any stale "out" value in the Netlify UI.
+  publish = ".next"
 
 # Next.js runtime on Netlify: serves the app, turns API routes into
 # Netlify Functions, and enables Netlify Blobs storage automatically.
