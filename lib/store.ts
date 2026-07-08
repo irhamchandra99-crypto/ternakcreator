@@ -107,3 +107,21 @@ export async function read<T>(ref: StoreRef): Promise<T | null> {
     return null;
   }
 }
+
+export async function del(ref: StoreRef): Promise<void> {
+  try {
+    if (backend === "netlify") {
+      const store = await netlifyStore();
+      await store.delete(ref.key);
+      return;
+    }
+    if (backend === "vercel" && ref.url) {
+      const { del: blobDel } = await import("@vercel/blob");
+      await blobDel(ref.url);
+      return;
+    }
+    await fs.unlink(path.join(dataDir(), ref.key));
+  } catch {
+    /* already gone — ignore */
+  }
+}

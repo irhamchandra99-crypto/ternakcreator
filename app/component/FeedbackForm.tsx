@@ -165,7 +165,7 @@ export default function FeedbackForm() {
           </button>
 
           <p className="text-[#1B198F]/35 text-xs text-center">
-            Maksimal 3 kiriman per hari. Pesanmu hanya dilihat oleh admin.
+            Maksimal 3 kiriman per jam. Pesanmu hanya dilihat oleh admin.
           </p>
         </form>
       </div>

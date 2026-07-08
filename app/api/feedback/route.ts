@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { clientIp, ipHash, todayWIB } from "@/lib/auth";
-import { put, list } from "@/lib/store";
+import { clientIp, ipHash } from "@/lib/auth";
+import { put } from "@/lib/store";
+import { countWithin } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MAX_PER_DAY = 3;
+const MAX_PER_WINDOW = 3;
+const WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const TYPES = ["testimoni", "kritik", "saran"] as const;
 
 export async function POST(req: NextRequest) {
@@ -34,15 +36,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Rate limit: max MAX_PER_DAY submissions per IP per day.
+  // Rate limit: max 3 submissions per IP within the last hour.
+  // Each stored feedback record doubles as a rate-limit hit (its key holds
+  // the timestamp), so admin still sees every message.
   const h = ipHash(clientIp(req));
-  const day = todayWIB();
-  const prefix = `feedback/${day}/${h}/`;
-  const existing = await list(prefix);
-  if (existing.length >= MAX_PER_DAY) {
+  const prefix = `feedback/${h}/`;
+  const recent = await countWithin(prefix, WINDOW_MS);
+  if (recent >= MAX_PER_WINDOW) {
     return NextResponse.json(
       {
-        error: `Kamu sudah mengirim ${MAX_PER_DAY} kali hari ini. Coba lagi besok ya 🙏`,
+        error: `Kamu sudah mengirim ${MAX_PER_WINDOW} kali dalam 1 jam terakhir. Coba lagi nanti ya 🙏`,
       },
       { status: 429 }
     );
@@ -56,7 +59,7 @@ export async function POST(req: NextRequest) {
     message,
     createdAt: new Date().toISOString(),
   };
-  await put(`${prefix}${id}.json`, record);
+  await put(`${prefix}${Date.now()}-${id}.json`, record);
 
   return NextResponse.json({ ok: true });
 }

@@ -1,30 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 import {
   clientIp,
   ipHash,
-  todayWIB,
   safeEqual,
   createSession,
   SESSION_COOKIE,
 } from "@/lib/auth";
-import { put, list } from "@/lib/store";
+import { countWithin, recordHit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MAX_FAIL_PER_DAY = 3;
+const MAX_FAIL = 3;
+const BAN_MS = 15 * 60 * 1000; // 15 minutes
 
 export async function POST(req: NextRequest) {
   const h = ipHash(clientIp(req));
-  const day = todayWIB();
-  const failPrefix = `loginfail/${day}/${h}/`;
+  const failPrefix = `loginfail/${h}/`;
 
-  // Lock out after MAX_FAIL_PER_DAY wrong attempts per IP per day.
-  const fails = await list(failPrefix);
-  if (fails.length >= MAX_FAIL_PER_DAY) {
+  // Ban after MAX_FAIL wrong attempts within the last 15 minutes.
+  const fails = await countWithin(failPrefix, BAN_MS, true);
+  if (fails >= MAX_FAIL) {
     return NextResponse.json(
-      { error: "Terlalu banyak percobaan gagal. Coba lagi besok." },
+      { error: "Terlalu banyak percobaan gagal. Coba lagi dalam 15 menit." },
       { status: 429 }
     );
   }
@@ -51,16 +49,14 @@ export async function POST(req: NextRequest) {
 
   const ok = safeEqual(username, U) && safeEqual(password, P);
   if (!ok) {
-    await put(`${failPrefix}${crypto.randomUUID()}.json`, {
-      at: new Date().toISOString(),
-    });
-    const remaining = Math.max(0, MAX_FAIL_PER_DAY - (fails.length + 1));
+    await recordHit(failPrefix, { at: new Date().toISOString() });
+    const remaining = Math.max(0, MAX_FAIL - (fails + 1));
     return NextResponse.json(
       {
         error:
           remaining > 0
             ? `Username atau password salah. Sisa percobaan: ${remaining}.`
-            : "Username atau password salah. Kamu terkunci sampai besok.",
+            : "Username atau password salah. Kamu diblokir 15 menit.",
       },
       { status: 401 }
     );
