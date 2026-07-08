@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import CreatorReviewVideo from "./component/CreatorReviewVideo";
 import { useEffect, useState, useRef } from "react";
-import CreatorReviewVideo from "./components/CreatorReviewVideo";
 
 function RollingNumber({ target, duration = 2000, suffix = "" }: { target: number, duration?: number, suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -45,103 +44,65 @@ function RollingNumber({ target, duration = 2000, suffix = "" }: { target: numbe
   return <span ref={elementRef}>{count}{suffix}</span>;
 }
 
-function CreatorReviewVideo({
-  src,
-  poster,
-  name,
-  role,
-}: {
-  src: string;
-  poster?: string;
-  name: string;
-  role: string;
-}) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+// ── PRICING DATA ──
+const pricingData = {
+  instagram: [
+    {
+      name: "Paket Spark",
+      views: "10.000+ Views",
+      price: "Rp200.000",
+      oldPrice: null,
+      featured: false,
+    },
+    {
+      name: "Paket Boost",
+      views: "30.000+ Views",
+      price: "Rp350.000",
+      oldPrice: null,
+      featured: true,
+    },
+    {
+      name: "Paket Impact",
+      views: "50.000+ Views",
+      price: "Rp475.000",
+      oldPrice: null,
+      featured: false,
+    },
+  ],
+  tiktok: [
+    {
+      name: "Paket Spark",
+      views: "10.000+ Views",
+      price: "Rp225.000",
+      oldPrice: null,
+      featured: false,
+    },
+    {
+      name: "Paket Boost",
+      views: "30.000+ Views",
+      price: "Rp375.000",
+      oldPrice: null,
+      featured: true,
+    },
+    {
+      name: "Paket Impact",
+      views: "50.000+ Views",
+      price: "Rp500.000",
+      oldPrice: null,
+      featured: false,
+    },
+  ],
+};
 
-  const togglePlay = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.paused) {
-      video.play();
-      setIsPlaying(true);
-    } else {
-      video.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = !video.muted;
-    setIsMuted(video.muted);
-  };
-
-  return (
-    <div className="flex flex-col gap-4 group">
-      <div
-        onClick={togglePlay}
-        className="relative w-full aspect-[9/16] rounded-[32px] overflow-hidden bg-[#1B198F] shadow-2xl cursor-pointer select-none border border-black/5"
-      >
-        <video
-          ref={videoRef}
-          src={src}
-          poster={poster}
-          muted={isMuted}
-          playsInline
-          loop
-          className="absolute inset-0 w-full h-full object-cover rounded-[32px]"
-        />
-
-        {/* Play overlay */}
-        {!isPlaying && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="#1B198F" className="ml-1">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          </div>
-        )}
-
-        {/* Mute toggle */}
-        <button
-          onClick={toggleMute}
-          className="absolute bottom-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white hover:bg-black/60 transition-colors z-10"
-          aria-label={isMuted ? "Unmute" : "Mute"}
-        >
-          {isMuted ? (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          ) : (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-            </svg>
-          )}
-        </button>
-
-        {/* Top gradient for legibility */}
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/30 to-transparent pointer-events-none"></div>
-      </div>
-
-      <div className="flex flex-col items-start px-1">
-        <span className="text-[#1B198F] font-bold text-base">{name}</span>
-        <span className="text-[#1B198F]/50 text-sm font-medium">{role}</span>
-      </div>
-    </div>
-  );
-}
+const CheckIcon = () => (
+  <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+  </div>
+);
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activePlatform, setActivePlatform] = useState<"instagram" | "tiktok">("instagram");
 
   return (
     <div className="w-full min-h-screen relative overflow-hidden bg-[#1B198F] text-white">
@@ -374,7 +335,7 @@ export default function Home() {
           {/* Bottom Glow Effect */}
           <div className="z-0 absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-[#A9DB1B] rounded-full blur-[180px] opacity-20"></div>
 
-          <div className="z-10 text-center mb-10 sm:mb-16 px-2">
+          <div className="z-10 text-center mb-10 sm:mb-12 px-2">
             <h2 className="text-3xl sm:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight">
               The Perfect Price for Your Needs
             </h2>
@@ -383,106 +344,88 @@ export default function Home() {
             </p>
           </div>
 
+          {/* Platform Tabs */}
+          <div className="z-10 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full p-1.5 mb-10 sm:mb-16 backdrop-blur-sm">
+            {(["instagram", "tiktok"] as const).map((platform) => (
+              <button
+                key={platform}
+                onClick={() => setActivePlatform(platform)}
+                className={`flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base transition-all duration-300 ${
+                  activePlatform === platform
+                    ? "bg-[#A9DB1B] text-[#1B198F] shadow-lg"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
+                {platform === "instagram" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"></path>
+                  </svg>
+                )}
+                {platform === "instagram" ? "Instagram" : "TikTok"}
+              </button>
+            ))}
+          </div>
+
           {/* Pricing Cards — stack on mobile, row on lg */}
           <div className="z-10 flex flex-col lg:flex-row gap-6 sm:gap-8 w-full max-w-5xl justify-center items-stretch lg:items-center">
-            {/* Paket Start */}
-            <div className="pricing-card group relative w-full lg:w-[33%] bg-white/5 backdrop-blur-xl border border-white/20 rounded-[32px] p-7 sm:p-8 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/10 hover:border-white/40">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#A9DB1B]/20 pointer-events-none"></div>
+            {pricingData[activePlatform].map((plan, idx) => (
+              <div
+                key={plan.name}
+                className={`pricing-card group relative w-full lg:w-[33%] backdrop-blur-xl border rounded-[32px] flex flex-col overflow-hidden transition-all duration-500 ${
+                  plan.featured
+                    ? "bg-white/10 border-white/30 p-8 sm:p-10 hover:bg-white/15 hover:border-white/50 lg:scale-105 shadow-2xl"
+                    : "bg-white/5 border-white/20 p-7 sm:p-8 hover:bg-white/10 hover:border-white/40"
+                }`}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-b from-transparent via-transparent pointer-events-none ${plan.featured ? "to-[#A9DB1B]/30" : "to-[#A9DB1B]/20"}`}></div>
 
-              <div className="self-center bg-[#8CBF00] px-8 py-2 rounded-full mb-8 shadow-lg">
-                <span className="text-white font-medium text-sm">Paket Start</span>
+                <div className={`self-center px-8 py-2 rounded-full shadow-lg ${plan.featured ? "bg-[#A9DB1B] px-10 mb-10 shadow-xl" : "bg-[#8CBF00] mb-8"}`}>
+                  <span className={`text-white text-sm ${plan.featured ? "font-bold" : "font-medium"}`}>{plan.name}</span>
+                </div>
+
+                <div className={plan.featured ? "mb-5" : "mb-6"}>
+                  {plan.oldPrice && (
+                    <span className="text-white/40 line-through text-lg block">{plan.oldPrice}</span>
+                  )}
+                  {plan.featured && (
+                    <span className="text-white/70 text-lg block font-medium">Only With</span>
+                  )}
+                  <span className={`text-white font-bold ${plan.featured ? "text-4xl sm:text-5xl tracking-tight" : "text-4xl sm:text-5xl"}`}>{plan.price}</span>
+                </div>
+
+                <div className="flex-grow">
+                  <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
+                  <ul className="space-y-3">
+                    {[plan.views, 'Organic Content', '100% Safe', 'No Banned'].map((item, i2) => (
+                      <li key={i2} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
+                        <CheckIcon />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <a
+                  href="https://wa.me/6289685482928"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`mt-8 self-center flex items-center gap-2 text-white rounded-full transition-all hover:scale-105 active:scale-95 ${
+                    plan.featured
+                      ? "justify-between bg-[#A9DB1B] px-10 py-3 font-bold shadow-xl"
+                      : "bg-[#8CBF00] px-8 py-3 font-medium shadow-lg"
+                  }`}
+                >
+                  Buy Now
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
+                </a>
               </div>
-
-              <div className="mb-6">
-                <span className="text-white/40 line-through text-lg block">Rp250.000</span>
-                <span className="text-white text-4xl sm:text-5xl font-bold">Rp199.000</span>
-              </div>
-
-              <div className="flex-grow">
-                <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
-                <ul className="space-y-3">
-                  {['10.000+ Views', 'Organic Content', '100% Safe', 'No Banned'].map((item, idx) => (
-                    <li key={idx} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
-                      <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-                      </div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <a href="https://wa.me/6289685482928" target="_blank" rel="noopener noreferrer" className="mt-8 self-center flex items-center gap-2 bg-[#8CBF00] text-white px-8 py-3 rounded-full font-medium transition-all hover:scale-105 active:scale-95 shadow-lg">
-                Buy Now
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
-              </a>
-            </div>
-
-            {/* Paket Growth (Featured) */}
-            <div className="pricing-card group relative w-full lg:w-[33%] bg-white/10 backdrop-blur-2xl border border-white/30 rounded-[32px] p-8 sm:p-10 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/15 hover:border-white/50 lg:scale-105 shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#A9DB1B]/30 pointer-events-none"></div>
-
-              <div className="self-center bg-[#A9DB1B] px-10 py-2 rounded-full mb-10 shadow-xl">
-                <span className="text-white font-bold text-sm">Paket Growth</span>
-              </div>
-
-              <div className="mb-5">
-                <span className="text-white/70 text-lg block font-medium">Only With</span>
-                <span className="text-white text-4xl sm:text-5xl font-bold tracking-tight">Rp349.000</span>
-              </div>
-
-              <div className="flex-grow">
-                <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
-                <ul className="space-y-3">
-                  {['100.000+ Views', 'Organic Content', '100% Safe', 'No Banned'].map((item, idx) => (
-                    <li key={idx} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
-                      <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-                      </div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <a href="https://wa.me/6289685482928" target="_blank" rel="noopener noreferrer" className="mt-8 self-center flex justify-between gap-2 bg-[#A9DB1B] text-white px-10 py-3 rounded-full font-bold transition-all hover:scale-105 active:scale-95 shadow-xl">
-                View All
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
-              </a>
-            </div>
-
-            {/* Paket Viral */}
-            <div className="pricing-card group relative w-full lg:w-[33%] bg-white/5 backdrop-blur-xl border border-white/20 rounded-[32px] p-7 sm:p-8 flex flex-col overflow-hidden transition-all duration-500 hover:bg-white/10 hover:border-white/40">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#A9DB1B]/20 pointer-events-none"></div>
-
-              <div className="self-center bg-[#8CBF00] px-8 py-2 rounded-full mb-8 shadow-lg">
-                <span className="text-white font-medium text-sm">Paket Viral</span>
-              </div>
-
-              <div className="mb-5">
-                <span className="text-white/40 line-through text-lg block">Rp1.000.000</span>
-                <span className="text-white text-4xl sm:text-5xl font-bold">Rp499.000</span>
-              </div>
-
-              <div className="flex-grow">
-                <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
-                <ul className="space-y-3">
-                  {['100.000+ Views', 'Organic Content', '100% Safe', 'No Banned'].map((item, idx) => (
-                    <li key={idx} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
-                      <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-                      </div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <a href="https://wa.me/6289685482928" target="_blank" rel="noopener noreferrer" className="mt-8 self-center flex items-center gap-2 bg-[#8CBF00] text-white px-8 py-3 rounded-full font-medium transition-all hover:scale-105 active:scale-95 shadow-lg">
-                Buy Now
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
-              </a>
-            </div>
+            ))}
           </div>
         </section>
 
@@ -553,8 +496,9 @@ export default function Home() {
             </div>
           </div>
         </section>
-        
-        {/* ── CREATOR VIDEO REVIEWS SECTION ── */}
+
+
+      {/* ── CREATOR VIDEO REVIEWS SECTION ── */}
         <section className="w-full relative flex flex-col items-center justify-center bg-[#FAFAFA] py-16 sm:py-24 px-5 sm:px-8 lg:px-20 overflow-hidden font-sans border-t border-black/5">
           {/* Decorative Blobs */}
           <div className="z-0 absolute top-[-15%] right-[-10%] w-[550px] h-[550px] bg-[#1B198F]/5 rounded-full blur-[130px] pointer-events-none"></div>
@@ -580,15 +524,15 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-10 max-w-3xl mx-auto sm:mx-0">
               <CreatorReviewVideo
                 src="/reviews/review-1.mp4"
-                poster="/reviews/poster-1.jpg"
-                name="Rizky Fauzi"
-                role="Digital Creator"
+                // poster="/reviews/poster-1.jpg"
+                name="Gilang Hanansyah"
+                role="Content Creator"
               />
               <CreatorReviewVideo
                 src="/reviews/review-2.mp4"
-                poster="/reviews/poster-2.jpg"
-                name="Dina Lestari"
-                role="Founder, F&B Local"
+                // poster="/reviews/poster-2.jpg"
+                name="Nisa Chandra"
+                role="Content Creator"
               />
             </div>
           </div>
