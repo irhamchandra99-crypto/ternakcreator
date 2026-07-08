@@ -63,8 +63,3 @@ export function ipHash(ip: string): string {
     .digest("hex")
     .slice(0, 16);
 }
-
-// Current day in WIB (UTC+7) so the "per day" window resets at local midnight.
-export function todayWIB(): string {
-  return new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
-}

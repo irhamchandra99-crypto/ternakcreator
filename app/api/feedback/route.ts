@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { clientIp, ipHash } from "@/lib/auth";
 import { put } from "@/lib/store";
-import { countWithin } from "@/lib/ratelimit";
+import { recentHits, addHit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,14 +36,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Rate limit: max 3 submissions per IP within the last hour.
-  // Each stored feedback record doubles as a rate-limit hit (its key holds
-  // the timestamp), so admin still sees every message.
+  // Rate limit: max 3 submissions per IP within the last hour, tracked by a
+  // strongly-consistent counter (rl/feedback/<ipHash>). The message itself is
+  // stored separately (feedback/<id>.json) so admin can read every one.
   const h = ipHash(clientIp(req));
-  const prefix = `feedback/${h}/`;
+  const rlKey = `rl/feedback/${h}.json`;
 
   try {
-    const recent = await countWithin(prefix, WINDOW_MS);
+    const recent = await recentHits(rlKey, WINDOW_MS);
     if (recent >= MAX_PER_WINDOW) {
       return NextResponse.json(
         {
@@ -61,7 +61,8 @@ export async function POST(req: NextRequest) {
       message,
       createdAt: new Date().toISOString(),
     };
-    await put(`${prefix}${Date.now()}-${id}.json`, record);
+    await put(`feedback/${id}.json`, record);
+    await addHit(rlKey, WINDOW_MS);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

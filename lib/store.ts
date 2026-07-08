@@ -114,6 +114,35 @@ export async function read<T>(ref: StoreRef): Promise<T | null> {
   }
 }
 
+// Strongly-consistent read of a single JSON record by key. Needed for the
+// rate-limit counters: Netlify Blobs `list()` is only eventually consistent,
+// but `get()` supports strong consistency, so counters use get, not list.
+export async function getJSON<T>(key: string): Promise<T | null> {
+  const backend = pickBackend();
+  try {
+    if (backend === "netlify") {
+      const store = await netlifyStore();
+      const data = (await store.get(key, {
+        type: "json",
+        consistency: "strong",
+      })) as T | null;
+      return data ?? null;
+    }
+    if (backend === "vercel") {
+      const { list: blobList } = await import("@vercel/blob");
+      const res = await blobList({ prefix: key, limit: 1 });
+      const b = res.blobs.find((x) => x.pathname === key);
+      if (!b) return null;
+      const r = await fetch(b.url, { cache: "no-store" });
+      return r.ok ? ((await r.json()) as T) : null;
+    }
+    const file = path.join(dataDir(), key);
+    return JSON.parse(await fs.readFile(file, "utf8")) as T;
+  } catch {
+    return null;
+  }
+}
+
 export async function del(ref: StoreRef): Promise<void> {
   const backend = pickBackend();
   try {

@@ -1,42 +1,27 @@
-// Sliding-window rate limiting on top of the store abstraction.
+// Sliding-window rate limiting via a single counter record per key.
 //
-// Each "hit" is a tiny record whose KEY embeds its creation time:
-//   <prefix><epochMs>-<rand>.json
-// Counting a window = list the prefix and keep keys newer than (now - window).
-// No content read needed — the timestamp is parsed straight from the key.
+// Each key (e.g. rl/login/<ipHash>) holds { ts: number[] } — the epoch-ms
+// timestamps of recent hits. Counting = read the record (strongly consistent
+// on Netlify Blobs, where list() would lag), keep timestamps inside the
+// window. The record self-prunes on every write, so it stays tiny.
 
-import crypto from "crypto";
-import { list, put, del, type StoreRef } from "./store";
+import { getJSON, put } from "./store";
 
-export function tsFromKey(key: string): number {
-  const base = key.split("/").pop() || "";
-  const n = Number(base.split("-")[0]);
-  return Number.isFinite(n) ? n : 0;
-}
+type Counter = { ts: number[] };
 
-// Count hits within `windowMs`. If `clean` is true, expired records are
-// deleted opportunistically (used for login-fail junk that has no other use).
-export async function countWithin(
-  prefix: string,
-  windowMs: number,
-  clean = false
+export async function recentHits(
+  key: string,
+  windowMs: number
 ): Promise<number> {
   const now = Date.now();
-  const refs: StoreRef[] = await list(prefix);
-  let count = 0;
-  for (const ref of refs) {
-    if (now - tsFromKey(ref.key) < windowMs) count++;
-    else if (clean) void del(ref);
-  }
-  return count;
+  const cur = (await getJSON<Counter>(key)) ?? { ts: [] };
+  return cur.ts.filter((t) => now - t < windowMs).length;
 }
 
-// Record a hit under `prefix` (must end with "/"). Returns the key used.
-export async function recordHit(
-  prefix: string,
-  data: unknown = {}
-): Promise<string> {
-  const key = `${prefix}${Date.now()}-${crypto.randomBytes(4).toString("hex")}.json`;
-  await put(key, data);
-  return key;
+export async function addHit(key: string, windowMs: number): Promise<void> {
+  const now = Date.now();
+  const cur = (await getJSON<Counter>(key)) ?? { ts: [] };
+  const fresh = cur.ts.filter((t) => now - t < windowMs);
+  fresh.push(now);
+  await put(key, { ts: fresh });
 }

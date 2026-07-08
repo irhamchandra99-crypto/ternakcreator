@@ -6,7 +6,7 @@ import {
   createSession,
   SESSION_COOKIE,
 } from "@/lib/auth";
-import { countWithin, recordHit } from "@/lib/ratelimit";
+import { recentHits, addHit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,10 +16,10 @@ const BAN_MS = 15 * 60 * 1000; // 15 minutes
 
 export async function POST(req: NextRequest) {
   const h = ipHash(clientIp(req));
-  const failPrefix = `loginfail/${h}/`;
+  const rlKey = `rl/login/${h}.json`;
 
   // Ban after MAX_FAIL wrong attempts within the last 15 minutes.
-  const fails = await countWithin(failPrefix, BAN_MS, true);
+  const fails = await recentHits(rlKey, BAN_MS);
   if (fails >= MAX_FAIL) {
     return NextResponse.json(
       { error: "Terlalu banyak percobaan gagal. Coba lagi dalam 15 menit." },
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   const ok = safeEqual(username, U) && safeEqual(password, P);
   if (!ok) {
-    await recordHit(failPrefix, { at: new Date().toISOString() });
+    await addHit(rlKey, BAN_MS);
     const remaining = Math.max(0, MAX_FAIL - (fails + 1));
     return NextResponse.json(
       {
