@@ -12,11 +12,14 @@ import path from "path";
 
 type Backend = "netlify" | "vercel" | "fs";
 
-const backend: Backend = process.env.NETLIFY
-  ? "netlify"
-  : process.env.BLOB_READ_WRITE_TOKEN
-    ? "vercel"
-    : "fs";
+// Computed per-call (not once at import) so it reads whatever env the runtime
+// injected. On Netlify Functions the platform provides NETLIFY_BLOBS_CONTEXT —
+// that's the signal that @netlify/blobs getStore() will auto-configure.
+function pickBackend(): Backend {
+  if (process.env.NETLIFY_BLOBS_CONTEXT || process.env.NETLIFY) return "netlify";
+  if (process.env.BLOB_READ_WRITE_TOKEN) return "vercel";
+  return "fs";
+}
 
 const NETLIFY_STORE = "tc-data";
 
@@ -32,6 +35,7 @@ async function netlifyStore() {
 }
 
 export async function put(key: string, data: unknown): Promise<void> {
+  const backend = pickBackend();
   if (backend === "netlify") {
     const store = await netlifyStore();
     await store.setJSON(key, data);
@@ -53,6 +57,7 @@ export async function put(key: string, data: unknown): Promise<void> {
 }
 
 export async function list(prefix: string): Promise<StoreRef[]> {
+  const backend = pickBackend();
   if (backend === "netlify") {
     const store = await netlifyStore();
     const { blobs } = await store.list({ prefix });
@@ -90,6 +95,7 @@ export async function list(prefix: string): Promise<StoreRef[]> {
 }
 
 export async function read<T>(ref: StoreRef): Promise<T | null> {
+  const backend = pickBackend();
   try {
     if (backend === "netlify") {
       const store = await netlifyStore();
@@ -109,6 +115,7 @@ export async function read<T>(ref: StoreRef): Promise<T | null> {
 }
 
 export async function del(ref: StoreRef): Promise<void> {
+  const backend = pickBackend();
   try {
     if (backend === "netlify") {
       const store = await netlifyStore();

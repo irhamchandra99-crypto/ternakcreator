@@ -41,25 +41,34 @@ export async function POST(req: NextRequest) {
   // the timestamp), so admin still sees every message.
   const h = ipHash(clientIp(req));
   const prefix = `feedback/${h}/`;
-  const recent = await countWithin(prefix, WINDOW_MS);
-  if (recent >= MAX_PER_WINDOW) {
+
+  try {
+    const recent = await countWithin(prefix, WINDOW_MS);
+    if (recent >= MAX_PER_WINDOW) {
+      return NextResponse.json(
+        {
+          error: `Kamu sudah mengirim ${MAX_PER_WINDOW} kali dalam 1 jam terakhir. Coba lagi nanti ya 🙏`,
+        },
+        { status: 429 }
+      );
+    }
+
+    const id = crypto.randomUUID();
+    const record = {
+      id,
+      type,
+      name: name || null,
+      message,
+      createdAt: new Date().toISOString(),
+    };
+    await put(`${prefix}${Date.now()}-${id}.json`, record);
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("feedback storage error:", err);
     return NextResponse.json(
-      {
-        error: `Kamu sudah mengirim ${MAX_PER_WINDOW} kali dalam 1 jam terakhir. Coba lagi nanti ya 🙏`,
-      },
-      { status: 429 }
+      { error: "Gagal menyimpan pesan di server. Coba lagi nanti." },
+      { status: 500 }
     );
   }
-
-  const id = crypto.randomUUID();
-  const record = {
-    id,
-    type,
-    name: name || null,
-    message,
-    createdAt: new Date().toISOString(),
-  };
-  await put(`${prefix}${Date.now()}-${id}.json`, record);
-
-  return NextResponse.json({ ok: true });
 }
