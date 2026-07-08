@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+
+# Next.js runtime on Netlify: serves the app, turns API routes into
+# Netlify Functions, and enables Netlify Blobs storage automatically.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

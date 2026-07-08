@@ -70,7 +70,7 @@ export default function CreatorReviewVideo({
         muted={isMuted}
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         className="absolute inset-0 w-full h-full object-cover"
       />
 
@@ -122,7 +122,6 @@ export default function CreatorReviewVideo({
       {/* Name & role */}
       <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 flex flex-col gap-1 z-10">
         <div className="flex items-center gap-2">
-          <span className="w-6 h-[2px] bg-[#A9DB1B] inline-block" />
           <span className="text-[#A9DB1B] text-xs font-bold uppercase tracking-[0.15em]">
             {role}
           </span>

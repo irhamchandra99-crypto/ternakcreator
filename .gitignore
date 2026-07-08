@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local dev storage fallback (feedback / rate-limit records)
+/.data
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

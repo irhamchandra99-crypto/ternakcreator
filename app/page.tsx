@@ -1,6 +1,7 @@
 "use client";
 
 import CreatorReviewVideo from "./component/CreatorReviewVideo";
+import FeedbackForm from "./component/FeedbackForm";
 import { useEffect, useState, useRef } from "react";
 
 function RollingNumber({ target, duration = 2000, suffix = "" }: { target: number, duration?: number, suffix?: string }) {
@@ -250,8 +251,7 @@ export default function Home() {
             {/* Top: Label + Heading + Description */}
             <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 sm:gap-10">
               <div className="flex flex-col">
-                <span className="text-[#A9DB1B] text-sm font-bold tracking-[0.25em] uppercase mb-4 sm:mb-5 flex items-center gap-3">
-                  <span className="w-8 h-[2px] bg-[#A9DB1B] inline-block"></span>
+                <span className="text-[#A9DB1B] text-sm font-bold tracking-[0.25em] uppercase mb-4 sm:mb-5">
                   Who We Are
                 </span>
                 <h2 className="text-4xl sm:text-6xl lg:text-[90px] font-black text-[#1B198F] leading-[0.9] tracking-tighter">
@@ -350,11 +350,10 @@ export default function Home() {
               <button
                 key={platform}
                 onClick={() => setActivePlatform(platform)}
-                className={`flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base transition-all duration-300 ${
-                  activePlatform === platform
-                    ? "bg-[#A9DB1B] text-[#1B198F] shadow-lg"
-                    : "text-white/60 hover:text-white"
-                }`}
+                className={`flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base transition-all duration-300 ${activePlatform === platform
+                  ? "bg-[#A9DB1B] text-[#1B198F] shadow-lg"
+                  : "text-white/60 hover:text-white"
+                  }`}
               >
                 {platform === "instagram" ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -377,11 +376,10 @@ export default function Home() {
             {pricingData[activePlatform].map((plan, idx) => (
               <div
                 key={plan.name}
-                className={`pricing-card group relative w-full lg:w-[33%] backdrop-blur-xl border rounded-[32px] flex flex-col overflow-hidden transition-all duration-500 ${
-                  plan.featured
-                    ? "bg-white/10 border-white/30 p-8 sm:p-10 hover:bg-white/15 hover:border-white/50 lg:scale-105 shadow-2xl"
-                    : "bg-white/5 border-white/20 p-7 sm:p-8 hover:bg-white/10 hover:border-white/40"
-                }`}
+                className={`pricing-card group relative w-full lg:w-[33%] backdrop-blur-xl border rounded-[32px] flex flex-col overflow-hidden transition-all duration-500 ${plan.featured
+                  ? "bg-white/10 border-white/30 p-8 sm:p-10 hover:bg-white/15 hover:border-white/50 lg:scale-105 shadow-2xl"
+                  : "bg-white/5 border-white/20 p-7 sm:p-8 hover:bg-white/10 hover:border-white/40"
+                  }`}
               >
                 <div className={`absolute inset-0 bg-gradient-to-b from-transparent via-transparent pointer-events-none ${plan.featured ? "to-[#A9DB1B]/30" : "to-[#A9DB1B]/20"}`}></div>
 
@@ -415,11 +413,10 @@ export default function Home() {
                   href="https://wa.me/6289685482928"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`mt-8 self-center flex items-center gap-2 text-white rounded-full transition-all hover:scale-105 active:scale-95 ${
-                    plan.featured
-                      ? "justify-between bg-[#A9DB1B] px-10 py-3 font-bold shadow-xl"
-                      : "bg-[#8CBF00] px-8 py-3 font-medium shadow-lg"
-                  }`}
+                  className={`mt-8 self-center flex items-center gap-2 text-white rounded-full transition-all hover:scale-105 active:scale-95 ${plan.featured
+                    ? "justify-between bg-[#A9DB1B] px-10 py-3 font-bold shadow-xl"
+                    : "bg-[#8CBF00] px-8 py-3 font-medium shadow-lg"
+                    }`}
                 >
                   Buy Now
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
@@ -498,7 +495,7 @@ export default function Home() {
         </section>
 
 
-      {/* ── CREATOR VIDEO REVIEWS SECTION ── */}
+        {/* ── CREATOR VIDEO REVIEWS SECTION ── */}
         <section className="w-full relative flex flex-col items-center justify-center bg-[#FAFAFA] py-16 sm:py-24 px-5 sm:px-8 lg:px-20 overflow-hidden font-sans border-t border-black/5">
           {/* Decorative Blobs */}
           <div className="z-0 absolute top-[-15%] right-[-10%] w-[550px] h-[550px] bg-[#1B198F]/5 rounded-full blur-[130px] pointer-events-none"></div>
@@ -508,7 +505,6 @@ export default function Home() {
             {/* Header */}
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
-                <span className="w-10 h-[2px] bg-[#A9DB1B] inline-block"></span>
                 <span className="text-[#1B198F] font-bold tracking-[0.2em] uppercase text-sm">Real Story</span>
               </div>
               <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-[#1B198F] tracking-tighter leading-[0.95]">
@@ -521,15 +517,15 @@ export default function Home() {
             </div>
 
             {/* Video Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-10 max-w-3xl mx-auto sm:mx-0">
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-10 max-w-3xl mx-auto">
               <CreatorReviewVideo
-                src="/reviews/review-1.mp4"
+                src="/review-1.webm"
                 // poster="/reviews/poster-1.jpg"
                 name="Gilang Hanansyah"
                 role="Content Creator"
               />
               <CreatorReviewVideo
-                src="/reviews/review-2.mp4"
+                src="/review-2.webm"
                 // poster="/reviews/poster-2.jpg"
                 name="Nisa Chandra"
                 role="Content Creator"
@@ -551,7 +547,6 @@ export default function Home() {
             <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 sm:gap-10 border-b border-white/10 pb-8 sm:pb-10">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <span className="w-10 h-[2px] bg-[#A9DB1B] inline-block"></span>
                   <span className="text-[#A9DB1B] font-bold tracking-[0.2em] uppercase text-sm">Trusted</span>
                 </div>
                 <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[1]">
@@ -567,18 +562,15 @@ export default function Home() {
             </div>
 
             {/* Testimonials Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 items-start">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 items-stretch max-w-5xl mx-auto">
               {[
-                { name: "Andhika Pratama", role: "CEO, TechNova", text: "Organic growth dari platform ini gila banget. Followers naik tajam secara natural tanpa resiko shadowban. Highly recommended!", rating: 5, offset: "" },
-                { name: "Siti Rahma", role: "Owner, BeautyGlow", text: "Terimakasih banyak! Sekarang follower saya nambah drastis dan Engagement rate naik 2x lipat dalam sebulan.", rating: 4.5, offset: "" },
-                { name: "Budi Santoso", role: "CMO, Fintech ID", text: "Keren abis. Engagement rate naik 3x lipat dalam sebulan. Sistem analitiknya ngasih insights berharga buat optimize konten.", rating: 4.5, offset: "" },
-                { name: "Dina Lestari", role: "Founder, F&B Local", text: "Sistem automasinya life-saver banget! Usaha nge-handle komen & DM ribuan orang jadi seamless. Rame terus interaksinya.", rating: 5, offset: "" },
-                { name: "Rizky Fauzi", role: "Digital Creator", text: "Mengerikan kecepatannya. Baru post video sejam lalu, push engagement-nya langsung berasa. Algoritma Tiktok nangkep sinyal positif.", rating: 4, offset: "" },
-                { name: "Maya Indah", role: "E-commerce Manager", text: "Sheesh! ROI terbaik yang pernah saya dapetin. Ads budget bisa ditekan karena organic reachnya luar biasa. Dashboard sangat clean.", rating: 4.5, offset: "" }
+                { name: "Tim Pecel Yojo", role: "Pecel Yojo", logo: "/logo pecel yojo.jpg", logoClass: "", text: "Awalnya coba-coba doang, eh ternyata hasilnya beneran kerasa. Yang order pecel jadi makin rame, banyak juga yang tau dari konten creator-nya. Enak, ga ribet, tinggal terima jadi.", rating: 5, offset: "" },
+                { name: "Tim Donat Raya", role: "Donat Raya", logo: "/Logo Donat Raya.jpg", logoClass: "", text: "Seneng banget bisa gabung, soalnya biasa promosi sendiri capek dan hasilnya gitu-gitu aja. Sekarang donat kita jadi sering muncul di FYP, orderan online juga ikut naik.", rating: 5, offset: "" },
+                { name: "Tim Wiraadventure Tour and Travel", role: "Wiraadventure Tour and Travel", logo: "/Logo Wira Adventure.jpg", logoClass: "scale-[1] object-[28%_61%]", text: "Buat usaha travel kayak kita, konten itu penting banget buat bangun kepercayaan calon customer. Alhamdulillah setelah pakai jasa creator dari sini, banyak yang tanya-tanya paket trip terus akhirnya booking.", rating: 4.5, offset: "" }
               ].map((testi, i) => (
                 <div
                   key={i}
-                  className={`relative group flex flex-col p-6 sm:p-8 lg:p-10 rounded-[24px] sm:rounded-[32px] bg-gradient-to-b from-white/[0.08] to-transparent backdrop-blur-md border border-white/10 hover:border-[#A9DB1B]/50 transition-all duration-500 hover:-translate-y-2 shadow-xl hover:shadow-[0_20px_40px_-20px_rgba(169,219,27,0.15)] ${testi.offset}`}
+                  className={`relative group flex flex-col h-full p-6 sm:p-8 lg:p-10 rounded-[24px] sm:rounded-[32px] bg-gradient-to-b from-white/[0.08] to-transparent backdrop-blur-md border border-white/10 hover:border-[#A9DB1B]/50 transition-all duration-500 hover:-translate-y-2 shadow-xl hover:shadow-[0_20px_40px_-20px_rgba(169,219,27,0.15)] ${testi.offset}`}
                 >
                   <div className="absolute top-6 right-8 opacity-10 text-[80px] font-serif leading-none group-hover:text-[#A9DB1B] group-hover:opacity-20 transition-all duration-500 pointer-events-none">
                     "
@@ -618,10 +610,10 @@ export default function Home() {
                     &ldquo;{testi.text}&rdquo;
                   </p>
 
-                  <div className="mt-auto flex items-center gap-4 pt-5 sm:pt-6 border-t border-white/10 z-10">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden p-[2px] bg-gradient-to-br from-[#A9DB1B] to-transparent">
-                      <div className="w-full h-full rounded-full overflow-hidden bg-[#1B198F]">
-                        <img src={`https://i.pravatar.cc/150?u=${i + 15}`} alt={testi.name} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
+                  <div className="mt-auto w-full flex items-center gap-4 pt-5 sm:pt-6 border-t border-white/10 z-10">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden p-[2px] bg-gradient-to-br from-[#A9DB1B] to-transparent shrink-0">
+                      <div className="w-full h-full rounded-full overflow-hidden bg-white">
+                        <img src={testi.logo} alt={testi.name} className={`w-full h-full object-cover object-center ${testi.logoClass ?? ""}`} />
                       </div>
                     </div>
                     <div className="flex flex-col">
@@ -635,6 +627,9 @@ export default function Home() {
 
           </div>
         </section>
+
+        {/* ── FEEDBACK FORM SECTION ── */}
+        <FeedbackForm />
 
         {/* ── FOOTER ── */}
         <footer className="w-full bg-[#1B198F] pt-14 sm:pt-24 pb-10 sm:pb-12 px-5 sm:px-12 lg:px-24 border-t border-white/5 relative overflow-hidden font-sans">
