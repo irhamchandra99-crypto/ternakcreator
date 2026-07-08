@@ -38,8 +38,16 @@ export async function POST(req: NextRequest) {
 
   const username = String(body.username ?? "");
   const password = String(body.password ?? "");
-  const U = process.env.ADMIN_USERNAME || "tc";
-  const P = process.env.ADMIN_PASSWORD || "rine123";
+  // Credentials come only from env vars — never hardcode them (they would be
+  // baked into the build output and flagged as leaked secrets).
+  const U = process.env.ADMIN_USERNAME;
+  const P = process.env.ADMIN_PASSWORD;
+  if (!U || !P) {
+    return NextResponse.json(
+      { error: "Server belum dikonfigurasi (ADMIN_USERNAME/ADMIN_PASSWORD)." },
+      { status: 500 }
+    );
+  }
 
   const ok = safeEqual(username, U) && safeEqual(password, P);
   if (!ok) {
