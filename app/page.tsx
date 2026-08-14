@@ -741,75 +741,71 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Lokasi Usaha + Maps */}
-            <div className="pt-10 sm:pt-14 border-t border-white/10 grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-              <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-2">
-                  <span className="text-[#A9DB1B] text-xs font-bold tracking-[0.25em] uppercase">
-                    Lokasi Usaha
-                  </span>
-                  <h3 className="text-white text-xl sm:text-2xl font-bold">Ternak Creator</h3>
-                </div>
-
-                <div className="flex gap-3">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#A9DB1B"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0 mt-0.5"
-                    aria-hidden="true"
-                  >
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <address className="not-italic text-white/50 text-base leading-relaxed">
-                    Jl. Pringgodani GK I No.173, RT.007/RW.03
-                    <br />
-                    Demangan, Kec. Gondokusuman
-                    <br />
-                    Kota Yogyakarta, Daerah Istimewa Yogyakarta 55221
-                  </address>
-                </div>
-
-                <a
-                  href="https://www.google.com/maps/place/Jl.+Pringgodani+GK+I+No.173,+RT.007%2FRW.03,+Demangan,+Kec.+Gondokusuman,+Kota+Yogyakarta,+Daerah+Istimewa+Yogyakarta+55221/@-7.7821181,110.3890872,18.59z/data=!4m6!3m5!1s0x2e7a59cf9e0e1de1:0xdc68ce9873f89a0e!8m2!3d-7.7820755!4d110.3892965"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="self-start inline-flex items-center gap-2 rounded-full border border-white/20 hover:border-[#A9DB1B] hover:text-[#A9DB1B] text-white text-sm font-semibold px-5 py-3 transition-all duration-300"
-                >
-                  Buka di Google Maps
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                </a>
-              </div>
-
-              <div className="w-full h-64 sm:h-72 rounded-3xl overflow-hidden border border-white/15">
+            {/* Lokasi Usaha — peta dan alamat dalam satu kartu */}
+            <div className="pt-10 sm:pt-14 border-t border-white/10">
+              <div className="rounded-3xl overflow-hidden border border-white/15 bg-white/[0.04]">
                 <iframe
                   title="Peta lokasi Ternak Creator"
                   src="https://maps.google.com/maps?q=-7.7820755,110.3892965&z=17&hl=id&output=embed"
-                  className="w-full h-full border-0"
+                  className="w-full h-64 sm:h-80 border-0 block"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   allowFullScreen
                 />
+
+                <div className="border-t border-white/10 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                  <div className="flex gap-3">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#A9DB1B"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="shrink-0 mt-1"
+                      aria-hidden="true"
+                    >
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[#A9DB1B] text-xs font-bold tracking-[0.25em] uppercase">
+                        Lokasi Usaha
+                      </span>
+                      <address className="not-italic text-white/60 text-sm sm:text-base leading-relaxed">
+                        Jl. Pringgodani GK I No.173, RT.007/RW.03, Demangan,
+                        <br className="hidden sm:block" /> Kec. Gondokusuman, Kota Yogyakarta,
+                        Daerah Istimewa Yogyakarta 55221
+                      </address>
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://www.google.com/maps/place/Jl.+Pringgodani+GK+I+No.173,+RT.007%2FRW.03,+Demangan,+Kec.+Gondokusuman,+Kota+Yogyakarta,+Daerah+Istimewa+Yogyakarta+55221/@-7.7821181,110.3890872,18.59z/data=!4m6!3m5!1s0x2e7a59cf9e0e1de1:0xdc68ce9873f89a0e!8m2!3d-7.7820755!4d110.3892965"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 self-start sm:self-auto inline-flex items-center gap-2 rounded-full border border-white/20 hover:border-[#A9DB1B] hover:text-[#A9DB1B] text-white text-sm font-semibold px-5 py-3 transition-all duration-300"
+                  >
+                    Buka di Google Maps
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
 
