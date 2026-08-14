@@ -18,10 +18,17 @@ export async function recentHits(
   return cur.ts.filter((t) => now - t < windowMs).length;
 }
 
+// Best-effort: a counter that fails to persist must not turn a normal
+// response (like "wrong password") into a 500. Callers treat rate limiting
+// as advisory, so the write is logged and swallowed rather than thrown.
 export async function addHit(key: string, windowMs: number): Promise<void> {
-  const now = Date.now();
-  const cur = (await getJSON<Counter>(key)) ?? { ts: [] };
-  const fresh = cur.ts.filter((t) => now - t < windowMs);
-  fresh.push(now);
-  await put(key, { ts: fresh });
+  try {
+    const now = Date.now();
+    const cur = (await getJSON<Counter>(key)) ?? { ts: [] };
+    const fresh = cur.ts.filter((t) => now - t < windowMs);
+    fresh.push(now);
+    await put(key, { ts: fresh });
+  } catch (err) {
+    console.error(`rate limit write failed for ${key}:`, err);
+  }
 }

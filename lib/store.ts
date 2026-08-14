@@ -1,6 +1,7 @@
-// Tiny storage abstraction with three backends, picked automatically:
-//  - Netlify Blobs  (on Netlify — process.env.NETLIFY is set)
-//  - Vercel Blob    (when BLOB_READ_WRITE_TOKEN is set)
+// Tiny storage abstraction with four backends, picked automatically:
+//  - Supabase Storage (whenever Supabase is configured — see pickBackend)
+//  - Netlify Blobs    (on Netlify — process.env.NETLIFY is set)
+//  - Vercel Blob      (when BLOB_READ_WRITE_TOKEN is set)
 //  - Local filesystem under .data/  (dev fallback so it works with no token)
 //
 // Each record is a small JSON blob addressed by a "/"-separated key, e.g.
@@ -10,18 +11,26 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-type Backend = "netlify" | "vercel" | "fs";
+type Backend = "supabase" | "netlify" | "vercel" | "fs";
 
 // Computed per-call (not once at import) so it reads whatever env the runtime
-// injected. On Netlify Functions the platform provides NETLIFY_BLOBS_CONTEXT —
-// that's the signal that @netlify/blobs getStore() will auto-configure.
+// injected.
+//
+// Supabase is preferred because it works the same on every host. The other
+// backends each need platform-specific wiring, and when that wiring is absent
+// the chain used to fall through to the filesystem — which is read-only in a
+// serverless runtime, so every write threw in production while dev looked fine.
 function pickBackend(): Backend {
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY) {
+    return "supabase";
+  }
   if (process.env.NETLIFY_BLOBS_CONTEXT || process.env.NETLIFY) return "netlify";
   if (process.env.BLOB_READ_WRITE_TOKEN) return "vercel";
   return "fs";
 }
 
 const NETLIFY_STORE = "tc-data";
+const SUPABASE_BUCKET = "app-data";
 
 export type StoreRef = { key: string; url?: string };
 
@@ -34,8 +43,22 @@ async function netlifyStore() {
   return getStore(NETLIFY_STORE);
 }
 
+async function supabaseBucket() {
+  const { createAdminClient } = await import("./supabase/admin");
+  return createAdminClient().storage.from(SUPABASE_BUCKET);
+}
+
 export async function put(key: string, data: unknown): Promise<void> {
   const backend = pickBackend();
+  if (backend === "supabase") {
+    const bucket = await supabaseBucket();
+    const { error } = await bucket.upload(key, JSON.stringify(data), {
+      contentType: "application/json",
+      upsert: true,
+    });
+    if (error) throw error;
+    return;
+  }
   if (backend === "netlify") {
     const store = await netlifyStore();
     await store.setJSON(key, data);
@@ -58,6 +81,22 @@ export async function put(key: string, data: unknown): Promise<void> {
 
 export async function list(prefix: string): Promise<StoreRef[]> {
   const backend = pickBackend();
+  if (backend === "supabase") {
+    const bucket = await supabaseBucket();
+    const refs: StoreRef[] = [];
+    // Supabase Storage lists one level at a time; folders come back with a
+    // null id, so recurse into them the same way the fs backend walks dirs.
+    const walk = async (dir: string) => {
+      const { data } = await bucket.list(dir, { limit: 1000 });
+      for (const entry of data ?? []) {
+        const full = dir ? `${dir}/${entry.name}` : entry.name;
+        if (entry.id) refs.push({ key: full });
+        else await walk(full);
+      }
+    };
+    await walk(prefix.replace(/\/+$/, ""));
+    return refs;
+  }
   if (backend === "netlify") {
     const store = await netlifyStore();
     const { blobs } = await store.list({ prefix });
@@ -97,6 +136,12 @@ export async function list(prefix: string): Promise<StoreRef[]> {
 export async function read<T>(ref: StoreRef): Promise<T | null> {
   const backend = pickBackend();
   try {
+    if (backend === "supabase") {
+      const bucket = await supabaseBucket();
+      const { data } = await bucket.download(ref.key);
+      if (!data) return null;
+      return JSON.parse(await data.text()) as T;
+    }
     if (backend === "netlify") {
       const store = await netlifyStore();
       const data = (await store.get(ref.key, { type: "json" })) as T | null;
@@ -120,6 +165,12 @@ export async function read<T>(ref: StoreRef): Promise<T | null> {
 export async function getJSON<T>(key: string): Promise<T | null> {
   const backend = pickBackend();
   try {
+    if (backend === "supabase") {
+      const bucket = await supabaseBucket();
+      const { data } = await bucket.download(key);
+      if (!data) return null;
+      return JSON.parse(await data.text()) as T;
+    }
     if (backend === "netlify") {
       const store = await netlifyStore();
       const data = (await store.get(key, {
@@ -146,6 +197,11 @@ export async function getJSON<T>(key: string): Promise<T | null> {
 export async function del(ref: StoreRef): Promise<void> {
   const backend = pickBackend();
   try {
+    if (backend === "supabase") {
+      const bucket = await supabaseBucket();
+      await bucket.remove([ref.key]);
+      return;
+    }
     if (backend === "netlify") {
       const store = await netlifyStore();
       await store.delete(ref.key);
