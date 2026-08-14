@@ -127,8 +127,9 @@ export default function Home() {
               <li className="nav-link cursor-pointer hover:text-white transition-colors"><a href="#testimonials">Testimonials</a></li>
             </ul>
 
-            {/* Desktop Join Now — hidden on mobile, visible only on desktop */}
-            <div className="hidden lg:block">
+            {/* Desktop Join Now + Login — hidden on mobile, visible only on desktop */}
+            <div className="hidden lg:flex items-center gap-3">
+              <a href="/login" className="font-light font-sans rounded-full px-6 py-2.5 cursor-pointer text-white/80 border border-white/20 hover:border-white/40 hover:text-white transition-colors">Login</a>
               <a href="#careers" className="glass-button font-light font-sans rounded-full px-6 py-2.5 cursor-pointer">Join Now</a>
             </div>
 
@@ -162,13 +163,22 @@ export default function Home() {
                   {item.label}
                 </a>
               ))}
-              <a
-                href="#careers"
-                onClick={() => setMenuOpen(false)}
-                className="mt-2 self-start bg-[#A9DB1B] text-[#1B198F] font-bold px-7 py-3 rounded-full text-base transition-all"
-              >
-                Join Now
-              </a>
+              <div className="mt-2 flex flex-row gap-3 self-start">
+                <a
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="border border-white/30 text-white font-medium px-7 py-3 rounded-full text-base transition-all"
+                >
+                  Login
+                </a>
+                <a
+                  href="#careers"
+                  onClick={() => setMenuOpen(false)}
+                  className="bg-[#A9DB1B] text-[#1B198F] font-bold px-7 py-3 rounded-full text-base transition-all"
+                >
+                  Join Now
+                </a>
+              </div>
             </div>
           )}
 
