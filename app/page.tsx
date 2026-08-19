@@ -69,7 +69,7 @@ const pricingData = {
       oldPrice: null,
       featured: false,
       features: [
-        "Minimal 5+ Video Promosi",
+        
         "Maks. 2 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
@@ -83,7 +83,7 @@ const pricingData = {
       oldPrice: null,
       featured: true,
       features: [
-        "Minimal 10+ Video Promosi",
+        
         "Maks. 5 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
@@ -97,7 +97,7 @@ const pricingData = {
       oldPrice: null,
       featured: false,
       features: [
-        "Minimal 15+ Video Promosi",
+        
         "Maks. 10 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
@@ -114,7 +114,7 @@ const pricingData = {
       oldPrice: null,
       featured: false,
       features: [
-        "Minimal 5+ Video Promosi",
+        
         "Maks. 2 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
@@ -128,7 +128,7 @@ const pricingData = {
       oldPrice: null,
       featured: true,
       features: [
-        "Minimal 10+ Video Promosi",
+        
         "Maks. 5 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
@@ -142,7 +142,7 @@ const pricingData = {
       oldPrice: null,
       featured: false,
       features: [
-        "Minimal 15+ Video Promosi",
+        
         "Maks. 10 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
