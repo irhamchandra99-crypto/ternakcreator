@@ -122,8 +122,8 @@ export default function Home() {
   return (
     <div className="w-full min-h-screen relative overflow-hidden bg-[#1B198F] text-white">
       {/* Circle Blur — smaller on mobile so green doesn't flood the screen */}
-      <div className="z-0 absolute top-[-100px] sm:top-[-400px] left-[-100px] sm:left-[-400px] w-[200px] sm:w-[900px] h-[200px] sm:h-[1000px] bg-[#A9DB1B] rounded-full blur-[80px] sm:blur-[150px] opacity-40 sm:opacity-100"></div>
-      <div className="z-0 absolute top-[300px] sm:top-[400px] right-[-100px] sm:right-[-400px] w-[200px] sm:w-[900px] h-[200px] sm:h-[1000px] bg-[#A9DB1B] rounded-full blur-[80px] sm:blur-[150px] opacity-40 sm:opacity-100"></div>
+      
+      
 
       <div className="w-full relative z-10 flex flex-col">
         {/* ── HERO SECTION ── */}
