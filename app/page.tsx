@@ -68,6 +68,13 @@ const pricingData = {
       price: "Rp200.000",
       oldPrice: null,
       featured: false,
+      features: [
+        "Minimal 5+ Video Promosi",
+        "Maks. 2 Creator Visit (opsional)",
+        "Organic Content",
+        "100% Safe",
+        "No Banned",
+      ],
     },
     {
       name: "Paket Boost",
@@ -75,6 +82,13 @@ const pricingData = {
       price: "Rp350.000",
       oldPrice: null,
       featured: true,
+      features: [
+        "Minimal 10+ Video Promosi",
+        "Maks. 5 Creator Visit (opsional)",
+        "Organic Content",
+        "100% Safe",
+        "No Banned",
+      ],
     },
     {
       name: "Paket Impact",
@@ -82,8 +96,16 @@ const pricingData = {
       price: "Rp475.000",
       oldPrice: null,
       featured: false,
+      features: [
+        "Minimal 15+ Video Promosi",
+        "Maks. 10 Creator Visit (opsional)",
+        "Organic Content",
+        "100% Safe",
+        "No Banned",
+      ],
     },
   ],
+
   tiktok: [
     {
       name: "Paket Spark",
@@ -91,6 +113,13 @@ const pricingData = {
       price: "Rp225.000",
       oldPrice: null,
       featured: false,
+      features: [
+        "Minimal 5+ Video Promosi",
+        "Maks. 2 Creator Visit (opsional)",
+        "Organic Content",
+        "100% Safe",
+        "No Banned",
+      ],
     },
     {
       name: "Paket Boost",
@@ -98,6 +127,13 @@ const pricingData = {
       price: "Rp375.000",
       oldPrice: null,
       featured: true,
+      features: [
+        "Minimal 10+ Video Promosi",
+        "Maks. 5 Creator Visit (opsional)",
+        "Organic Content",
+        "100% Safe",
+        "No Banned",
+      ],
     },
     {
       name: "Paket Impact",
@@ -105,6 +141,13 @@ const pricingData = {
       price: "Rp500.000",
       oldPrice: null,
       featured: false,
+      features: [
+        "Minimal 15+ Video Promosi",
+        "Maks. 10 Creator Visit (opsional)",
+        "Organic Content",
+        "100% Safe",
+        "No Banned",
+      ],
     },
   ],
 };
@@ -455,7 +498,7 @@ export default function Home() {
                 <div className="flex-grow">
                   <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
                   <ul className="space-y-3">
-                    {[plan.views, 'Organic Content', '100% Safe', 'No Banned'].map((item, i2) => (
+                    {[plan.views, ...plan.features].map((item, i2) => (
                       <li key={i2} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
                         <CheckIcon />
                         {item}
