@@ -45,6 +45,7 @@ export default function LoginPage() {
           password,
           options: { data: { full_name: name } },
         });
+        
         if (signUpError) {
           setError(
             signUpError.message.includes("already registered")
@@ -52,6 +53,32 @@ export default function LoginPage() {
               : signUpError.message
           );
           return;
+        }
+        
+        // Simpan data creator ke Google Sheets
+        if (data.user) {
+          const sheetResponse = await fetch("/api/creators", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name,
+              email,
+              userId: data.user.id,
+            }),
+          });
+        
+          if (!sheetResponse.ok) {
+            console.error("Gagal menyimpan data ke Google Sheets");
+          }
+        }
+        
+        // If email confirmation is on, there's no session yet.
+        if (!data.session) {
+          setSuccess("Cek email kamu untuk konfirmasi akun.");
+        } else {
+          window.location.href = "/dashboard";
         }
         // If email confirmation is on, there's no session yet.
         if (!data.session) {
