@@ -60,7 +60,6 @@ function RollingNumber({ target, duration = 2000, suffix = "" }: { target: numbe
 }
 
 // ── PRICING DATA ──
-// ── PRICING DATA ──
 const pricingData = {
   instagram: [
     {
@@ -69,12 +68,6 @@ const pricingData = {
       price: "Rp200.000",
       oldPrice: null,
       featured: false,
-      features: [
-        "Minimal 5+ Video Promosi",
-        "Maks. 2 Creator Visit (opsional)",
-        "Creator disesuaikan dengan kategori campaign",
-        "Creator berdomisili di DIY",
-      ],
     },
     {
       name: "Paket Boost",
@@ -82,12 +75,6 @@ const pricingData = {
       price: "Rp350.000",
       oldPrice: null,
       featured: true,
-      features: [
-        "Minimal 10+ Video Promosi",
-        "Maks. 5 Creator Visit (opsional)",
-        "Creator disesuaikan dengan kategori campaign",
-        "Penempatan creator lebih fleksibel sesuai kebutuhan campaign",
-      ],
     },
     {
       name: "Paket Impact",
@@ -95,15 +82,8 @@ const pricingData = {
       price: "Rp475.000",
       oldPrice: null,
       featured: false,
-      features: [
-        "Minimal 15+ Video Promosi",
-        "Maks. 10 Creator Visit (opsional)",
-        "Creator dikurasi sesuai target campaign",
-        "Penyesuaian creator berdasarkan niche, target audiens, dan preferensi UMKM",
-      ],
     },
   ],
-
   tiktok: [
     {
       name: "Paket Spark",
@@ -111,12 +91,6 @@ const pricingData = {
       price: "Rp225.000",
       oldPrice: null,
       featured: false,
-      features: [
-        "Minimal 5+ Video Promosi",
-        "Maks. 2 Creator Visit (opsional)",
-        "Creator disesuaikan dengan kategori campaign",
-        "Creator berdomisili di DIY",
-      ],
     },
     {
       name: "Paket Boost",
@@ -124,12 +98,6 @@ const pricingData = {
       price: "Rp375.000",
       oldPrice: null,
       featured: true,
-      features: [
-        "Minimal 10+ Video Promosi",
-        "Maks. 5 Creator Visit (opsional)",
-        "Creator disesuaikan dengan kategori campaign",
-        "Penempatan creator lebih fleksibel sesuai kebutuhan campaign",
-      ],
     },
     {
       name: "Paket Impact",
@@ -137,12 +105,6 @@ const pricingData = {
       price: "Rp500.000",
       oldPrice: null,
       featured: false,
-      features: [
-        "Minimal 15+ Video Promosi",
-        "Maks. 10 Creator Visit (opsional)",
-        "Creator dikurasi sesuai target campaign",
-        "Penyesuaian creator berdasarkan niche, target audiens, dan preferensi UMKM",
-      ],
     },
   ],
 };
@@ -493,21 +455,13 @@ export default function Home() {
                 <div className="flex-grow">
                   <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
                   <ul className="space-y-3">
-  {[
-    `Target Akumulasi ${plan.views}`,
-    ...plan.features,
-  ].map((item, i2) => (
-    <li
-      key={i2}
-      className="flex items-start gap-3 text-[#FAFAFA]/70 font-medium text-sm sm:text-base leading-relaxed"
-    >
-      <div className="shrink-0 mt-0.5">
-        <CheckIcon />
-      </div>
-      <span>{item}</span>
-    </li>
-  ))}
-</ul>
+                    {[plan.views, 'Organic Content', '100% Safe', 'No Banned'].map((item, i2) => (
+                      <li key={i2} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
+                        <CheckIcon />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
                 <a
