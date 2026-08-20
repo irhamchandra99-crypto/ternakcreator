@@ -825,7 +825,7 @@ export default function Home() {
                 </div>
 
                 <a
-                  href="https://www.google.com/maps/place/Jl.+Pringgodani+GK+I+No.173,+RT.007%2FRW.03,+Demangan,+Kec.+Gondokusuman,+Kota+Yogyakarta,+Daerah+Istimewa+Yogyakarta+55221/@-7.7821181,110.3890872,18.59z/data=!4m6!3m5!1s0x2e7a59cf9e0e1de1:0xdc68ce9873f89a0e!8m2!3d-7.7820755!4d110.3892965"
+                  href="https://www.google.com/maps/place/Ternak+Creator/@-7.7820135,110.3892651,17z/data=!3m1!4b1!4m6!3m5!1s0x2e7a5900090ad953:0xde6df92fdaa1782b!8m2!3d-7.7820135!4d110.3892651!16s%2Fg%2F11zdrh6sq6!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDgxNy4wIKXMDSoASAFQAw%3D%3D"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="shrink-0 self-start sm:self-auto inline-flex items-center gap-2 rounded-full border border-white/20 hover:border-[#A9DB1B] hover:text-[#A9DB1B] text-white text-sm font-semibold px-5 py-3 transition-all duration-300"
