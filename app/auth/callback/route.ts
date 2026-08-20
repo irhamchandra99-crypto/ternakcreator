@@ -1,5 +1,3 @@
-// Handles the redirect back from Supabase (Google OAuth code exchange, and
-// email confirmation links). Exchanges the `code` for a session cookie.
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,8 +8,42 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
+
+    const { data, error } =
+      await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error && data.user) {
+      const user = data.user;
+
+      // Hanya tambahkan ke Google Sheets jika login menggunakan Google
+      const isGoogleUser = user.app_metadata?.provider === "google";
+
+      if (isGoogleUser) {
+        const name =
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          "Tanpa Nama";
+
+        const sheetResponse = await fetch(`${origin}/api/creators`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email: user.email,
+            userId: user.id,
+          }),
+        });
+
+        if (!sheetResponse.ok) {
+          console.error(
+            "Gagal menyimpan Google user ke Google Sheets:",
+            await sheetResponse.text()
+          );
+        }
+      }
+
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
