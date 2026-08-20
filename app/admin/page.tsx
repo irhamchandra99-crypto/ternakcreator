@@ -4,13 +4,16 @@ import { useEffect, useState, useCallback } from "react";
 import AdminFeedback from "@/app/component/AdminFeedback";
 import AdminCampaigns from "@/app/component/AdminCampaigns";
 import AdminPayouts from "@/app/component/AdminPayouts";
+import AdminUsers from "@/app/component/AdminUsers";
 
-type Tab = "campaigns" | "payouts" | "feedback";
+
+type Tab = "campaigns" | "payouts" | "feedback" | "users";
 
 const TABS: Array<{ key: Tab; label: string }> = [
   { key: "campaigns", label: "Campaign" },
   { key: "payouts", label: "Pencairan Dana" },
   { key: "feedback", label: "Feedback" },
+  { key: "users", label: "Users" },
 ];
 
 export default function AdminPage() {
@@ -187,6 +190,7 @@ export default function AdminPage() {
         {tab === "campaigns" && <AdminCampaigns />}
         {tab === "payouts" && <AdminPayouts onChanged={checkSession} />}
         {tab === "feedback" && <AdminFeedback />}
+        {tab === "users" && <AdminUsers />}
       </div>
     </main>
   );

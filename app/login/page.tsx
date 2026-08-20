@@ -55,24 +55,7 @@ export default function LoginPage() {
           return;
         }
         
-        // Simpan data creator ke Google Sheets
-        if (data.user) {
-          const sheetResponse = await fetch("/api/creators", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name,
-              email,
-              userId: data.user.id,
-            }),
-          });
         
-          if (!sheetResponse.ok) {
-            console.error("Gagal menyimpan data ke Google Sheets");
-          }
-        }
         
         // If email confirmation is on, there's no session yet.
         if (!data.session) {
