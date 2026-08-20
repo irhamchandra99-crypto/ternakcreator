@@ -27,6 +27,7 @@ export default function RootLayout({
         className={`${plusJakartaSans.variable} antialiased`}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
