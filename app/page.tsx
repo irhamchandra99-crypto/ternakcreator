@@ -81,7 +81,7 @@ const pricingData = {
         "Maks. 2 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
-        "No Banned",
+        
       ],
     },
     {
@@ -95,7 +95,7 @@ const pricingData = {
         "Maks. 5 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
-        "No Banned",
+        
       ],
     },
     {
@@ -109,7 +109,7 @@ const pricingData = {
         "Maks. 10 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
-        "No Banned",
+        
       ],
     },
   ],
@@ -126,7 +126,7 @@ const pricingData = {
         "Maks. 2 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
-        "No Banned",
+        
       ],
     },
     {
@@ -140,7 +140,7 @@ const pricingData = {
         "Maks. 5 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
-        "No Banned",
+        
       ],
     },
     {
@@ -154,7 +154,7 @@ const pricingData = {
         "Maks. 10 Creator Visit (opsional)",
         "Organic Content",
         "100% Safe",
-        "No Banned",
+        
       ],
     },
   ],
