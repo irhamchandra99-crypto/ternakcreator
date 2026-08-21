@@ -16,6 +16,14 @@ const COLLABORATORS = [
   { name: "Piezzo Coffee", src: "/Collaborator/PIEZZO%20COFFE.webp" },
   { name: "Posetraits", src: "/Collaborator/POSETRAITS.png" },
   { name: "Probosiwi Resort", src: "/Collaborator/PROBOSIWI%20RESORT.png" },
+   { name: "Digital Preneur Yogyakarta", src: "/Collaborator/digitalpreneur.png" },
+  { name: "Kerajinan Tongkol Jagung", src: "/Collaborator/kerajinanjagung.png" },
+  { name: "Migunani", src: "/Collaborator/migunani.png" },
+  { name: "Phobia Perfume", src: "/Collaborator/phobiaperfume.png" },
+  { name: "PKK", src: "/Collaborator/pkk.png" },
+  { name: "Swarna", src: "/Collaborator/swarna.png" },
+  { name: "Wiyasta", src: "/Collaborator/wiyasta.png" },
+  { name: "Wira Adventure", src: "/Collaborator/wiraadventure.png" },
 ];
 
 function RollingNumber({ target, duration = 2000, suffix = "" }: { target: number, duration?: number, suffix?: string }) {
