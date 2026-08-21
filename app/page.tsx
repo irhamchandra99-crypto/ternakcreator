@@ -5,18 +5,19 @@ import FeedbackForm from "./component/FeedbackForm";
 import { useEffect, useState, useRef } from "react";
 
 // Brand logos shown in the About-section marquee. Files live in
-// public/Collaborator/ — spaces are percent-encoded for the URL.
+// public/Collaborator/ — keep filenames lowercase and hyphenated: spaces and
+// apostrophes need URL-encoding and break on case-sensitive static hosts.
 const COLLABORATORS = [
-  { name: "Daruma", src: "/Collaborator/DARUMA.png" },
-  { name: "Donat Raya", src: "/Collaborator/DONAT%20RAYA.png" },
-  { name: "D'Shaka", src: "/Collaborator/D'SHAKA.png" },
-  { name: "Festive Coffee", src: "/Collaborator/FESTIVE%20COFFE.png" },
-  { name: "Fil Coffee", src: "/Collaborator/FIL%20COFFE.png" },
-  { name: "Pecel Yojo", src: "/Collaborator/PECEL%20YOJO.png" },
-  { name: "Piezzo Coffee", src: "/Collaborator/PIEZZO%20COFFE.webp" },
-  { name: "Posetraits", src: "/Collaborator/POSETRAITS.png" },
-  { name: "Probosiwi Resort", src: "/Collaborator/PROBOSIWI%20RESORT.png" },
-   { name: "Digital Preneur Yogyakarta", src: "/Collaborator/digitalpreneur.png" },
+  { name: "Daruma", src: "/Collaborator/daruma.png" },
+  { name: "Donat Raya", src: "/Collaborator/logo-donat-raya.jpg" },
+  { name: "D'Shaka", src: "/Collaborator/dshaka.png" },
+  { name: "Festive Coffee", src: "/Collaborator/festive-coffee.png" },
+  { name: "Fil Coffee", src: "/Collaborator/fil-coffee.png" },
+  { name: "Pecel Yojo", src: "/Collaborator/pecel-yojo.png" },
+  { name: "Piezzo Coffee", src: "/Collaborator/piezzo-coffee.webp" },
+  { name: "Posetraits", src: "/Collaborator/posetraits.png" },
+  { name: "Probosiwi Resort", src: "/Collaborator/probosiwi-resort.png" },
+  { name: "Digital Preneur Yogyakarta", src: "/Collaborator/digitalpreneur.png" },
   { name: "Kerajinan Tongkol Jagung", src: "/Collaborator/kerajinanjagung.png" },
   { name: "Migunani", src: "/Collaborator/migunani.png" },
   { name: "Phobia Perfume", src: "/Collaborator/phobiaperfume.png" },
@@ -24,6 +25,18 @@ const COLLABORATORS = [
   { name: "Swarna", src: "/Collaborator/swarna.png" },
   { name: "Wiyasta", src: "/Collaborator/wiyasta.png" },
   { name: "Wira Adventure", src: "/Collaborator/wiraadventure.png" },
+];
+
+// Creator review clips shown in the Real Story marquee. Files live in
+// public/reviews/.
+const CREATOR_REVIEWS = [
+  "/reviews/review-1.mp4",
+  "/reviews/review-2.mp4",
+  "/reviews/review-3.webm",
+  "/reviews/review-4.webm",
+  "/reviews/review-5.webm",
+  "/reviews/review-6.webm",
+  "/reviews/review-7.webm",
 ];
 
 function RollingNumber({ target, duration = 2000, suffix = "" }: { target: number, duration?: number, suffix?: string }) {
@@ -80,8 +93,8 @@ const pricingData = {
         
         "Maks. 2 Creator Visit (opsional)",
         "Organic Content",
-        "100% Safe",
-        "No Banned",
+        "Verified Creators",
+        "Campaign Report",
       ],
     },
     {
@@ -94,8 +107,8 @@ const pricingData = {
         
         "Maks. 5 Creator Visit (opsional)",
         "Organic Content",
-        "100% Safe",
-        "No Banned",
+        "Verified Creators",
+        "Campaign Report",
       ],
     },
     {
@@ -108,8 +121,8 @@ const pricingData = {
         
         "Maks. 10 Creator Visit (opsional)",
         "Organic Content",
-        "100% Safe",
-        "No Banned",
+        "Verified Creators",
+        "Campaign Report",
       ],
     },
   ],
@@ -125,8 +138,8 @@ const pricingData = {
         
         "Maks. 2 Creator Visit (opsional)",
         "Organic Content",
-        "100% Safe",
-        "No Banned",
+        "Verified Creators",
+        "Campaign Report",
       ],
     },
     {
@@ -139,8 +152,8 @@ const pricingData = {
         
         "Maks. 5 Creator Visit (opsional)",
         "Organic Content",
-        "100% Safe",
-        "No Banned",
+        "Verified Creators",
+        "Campaign Report",
       ],
     },
     {
@@ -153,16 +166,30 @@ const pricingData = {
         
         "Maks. 10 Creator Visit (opsional)",
         "Organic Content",
-        "100% Safe",
-        "No Banned",
+        "Verified Creators",
+        "Campaign Report",
       ],
     },
   ],
 };
 
+// "Custom Campaign" CTA under the pricing tiers. The chat opens with the brief
+// already half-written so the visitor doesn't have to compose the first message.
+const CUSTOM_CAMPAIGN_WA =
+  "https://wa.me/6285879053589?text=" +
+  encodeURIComponent(
+    "Halo kak, aku tertarik dengan Ternak Creator dan ingin request custom campaign.\n\n" +
+    "Nama/Brand: \n" +
+    "Platform (Instagram/TikTok): \n" +
+    "Target views: \n" +
+    "Periode campaign: \n" +
+    "Catatan tambahan: \n\n" +
+    "Boleh dibantu info paket dan estimasi biayanya? Terima kasih!"
+  );
+
 const CheckIcon = () => (
-  <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+  <div className="w-4 h-4 shrink-0 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
   </div>
 );
 
@@ -181,7 +208,7 @@ export default function Home() {
         <section className="w-full min-h-screen flex flex-col relative z-10">
 
           {/* NAVBAR */}
-          <nav className="flex justify-between items-center font-sans px-5 py-5 sm:px-10 sm:py-8">
+          <nav className="flex justify-between items-center font-sans px-5 py-5 sm:px-8 sm:py-8 lg:px-12">
             <h1 className="text-xl sm:text-2xl font-bold cursor-pointer">TernakCreator.</h1>
 
             {/* Desktop nav links */}
@@ -316,25 +343,22 @@ export default function Home() {
         </section>
 
         {/* ── ABOUT US SECTION ── */}
-        <section id="about" className="w-full relative flex flex-col items-center justify-center bg-white overflow-hidden font-sans py-16 sm:py-24 px-5 sm:px-8 lg:px-24">
+        <section id="about" className="w-full min-h-screen relative flex flex-col items-center justify-center bg-white overflow-hidden font-sans py-12 sm:py-16 px-5 sm:px-8 lg:px-12">
           {/* Decorative blobs */}
           <div className="absolute top-[-150px] right-[-150px] w-[500px] h-[500px] bg-[#A9DB1B] rounded-full blur-[180px] opacity-10 pointer-events-none"></div>
           <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] bg-[#1B198F] rounded-full blur-[150px] opacity-5 pointer-events-none"></div>
 
-          <div className="relative z-10 w-full max-w-7xl flex flex-col gap-12 sm:gap-20">
+          <div className="relative z-10 w-full max-w-[1600px] flex flex-col gap-10 lg:gap-12">
 
             {/* Top: Label + Heading + Description */}
             <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 sm:gap-10">
               <div className="flex flex-col">
-                <span className="text-[#A9DB1B] text-sm font-bold tracking-[0.25em] uppercase mb-4 sm:mb-5">
-                  Who We Are
-                </span>
-                <h2 className="text-4xl sm:text-6xl lg:text-[90px] font-black text-[#1B198F] leading-[0.9] tracking-tighter">
+                <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-[#1B198F] leading-[0.9] tracking-tighter">
                   WHO WE <br />
                   <span className="text-[#A9DB1B]">ARE?</span>
                 </h2>
               </div>
-              <p className="text-[#1B198F]/50 text-lg sm:text-xl lg:text-2xl font-light leading-relaxed max-w-xl lg:text-right">
+              <p className="text-[#1B198F]/50 text-base sm:text-lg lg:text-xl font-light leading-relaxed max-w-xl lg:text-right">
                 Designed to help your business{" "}
                 <span className="text-[#1B198F] font-medium">increase engagement</span> on social media
                 without getting tired.
@@ -346,7 +370,7 @@ export default function Home() {
               {[
                 {
                   icon: (
-                    <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                       <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                     </svg>
                   ),
@@ -355,7 +379,7 @@ export default function Home() {
                 },
                 {
                   icon: (
-                    <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                       <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
                     </svg>
                   ),
@@ -364,7 +388,7 @@ export default function Home() {
                 },
                 {
                   icon: (
-                    <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                   ),
@@ -374,37 +398,39 @@ export default function Home() {
               ].map((card, i) => (
                 <div
                   key={i}
-                  className="group flex flex-col gap-5 p-6 sm:p-8 rounded-3xl border border-[#1B198F]/10 bg-white shadow-sm hover:shadow-md hover:border-[#A9DB1B]/60 transition-all duration-300 hover:-translate-y-1"
+                  className="group flex flex-col gap-3 p-5 sm:p-6 rounded-2xl border border-[#1B198F]/10 bg-white shadow-sm hover:shadow-md hover:border-[#A9DB1B]/60 transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-[#A9DB1B]/15 flex items-center justify-center text-[#A9DB1B] group-hover:bg-[#A9DB1B]/25 transition-colors duration-300">
+                  <div className="w-11 h-11 rounded-xl bg-[#A9DB1B]/15 flex items-center justify-center text-[#A9DB1B] group-hover:bg-[#A9DB1B]/25 transition-colors duration-300">
                     {card.icon}
                   </div>
-                  <h3 className="text-[#1B198F] font-bold text-xl">{card.title}</h3>
-                  <p className="text-[#1B198F]/50 text-base leading-relaxed">{card.desc}</p>
+                  <h3 className="text-[#1B198F] font-bold text-lg">{card.title}</h3>
+                  <p className="text-[#1B198F]/50 text-sm leading-relaxed">{card.desc}</p>
                 </div>
               ))}
             </div>
 
             {/* Bottom: Metric Counters */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-[#1B198F]/10 pt-8 sm:pt-12">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-[#1B198F]/10 pt-6 sm:pt-8">
               {[
                 { target: 10000, suffix: "+", label: "Total Viewers", sub: "Jangkauan konten kreator kami" },
-                { target: 50, suffix: "+", label: "Entrepreneurs", sub: "Dipercaya oleh ratusan pebisnis" },
-                { target: 100, suffix: "+", label: "Content Creators", sub: "Creator aktif di platform kami" },
+                { target: 20, suffix: "+", label: "Brand", sub: "Dipercayai oleh 20+ Brand ternama" },
+                { target: 150, suffix: "+", label: "Content Creators", sub: "Creator aktif di platform kami" },
               ].map((stat, i) => (
                 <div key={i} className="flex flex-col items-center text-center gap-0.5 sm:gap-1 group">
                   <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#A9DB1B] tabular-nums transition-transform group-hover:scale-105 duration-300">
                     <RollingNumber target={stat.target} suffix={stat.suffix} />
                   </span>
                   <span className="text-[#1B198F] font-bold text-xs sm:text-sm lg:text-base">{stat.label}</span>
-                  <span className="text-[#1B198F]/40 text-[11px] sm:text-xs hidden sm:block">{stat.sub}</span>
+                  {stat.sub && (
+                    <span className="text-[#1B198F]/40 text-[11px] sm:text-xs hidden sm:block">{stat.sub}</span>
+                  )}
                 </div>
               ))}
             </div>
 
             {/* Collaborator logo marquee */}
-            <div className="flex flex-col items-center gap-6 sm:gap-8 border-t border-[#1B198F]/10 pt-8 sm:pt-12">
-              <span className="text-[#1B198F]/45 text-[11px] sm:text-xs font-bold tracking-[0.25em] uppercase">
+            <div className="flex flex-col items-center gap-4 sm:gap-6 border-t border-[#1B198F]/10 pt-6 sm:pt-8">
+              <span className="text-[#1B198F] text-sm sm:text-base font-bold tracking-[0.25em] uppercase">
                 Our Collaborator
               </span>
 
@@ -416,14 +442,14 @@ export default function Home() {
                       {COLLABORATORS.map((brand) => (
                         <div
                           key={brand.name}
-                          className="shrink-0 flex items-center justify-center h-10 sm:h-14 w-24 sm:w-32 px-3 sm:px-5"
+                          className="shrink-0 flex items-center justify-center h-12 sm:h-16 w-28 sm:w-36 px-3 sm:px-5"
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={brand.src}
                             alt={brand.name}
                             loading="lazy"
-                            className="max-h-full max-w-full object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                            className="max-h-full max-w-full object-contain opacity-90 hover:opacity-100 hover:scale-105 transition-all duration-300"
                           />
                         </div>
                       ))}
@@ -437,21 +463,21 @@ export default function Home() {
         </section>
 
         {/* ── PRICING SECTION ── */}
-        <section id="pricing" className="w-full relative flex flex-col items-center justify-center bg-[#1B198F] py-16 sm:py-24 px-5 sm:px-8 lg:p-24 overflow-hidden font-sans">
+        <section id="pricing" className="w-full min-h-screen relative flex flex-col items-center justify-center bg-[#1B198F] py-12 sm:py-16 px-5 sm:px-8 lg:px-12 overflow-hidden font-sans">
           {/* Bottom Glow Effect */}
           <div className="z-0 absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-[#A9DB1B] rounded-full blur-[180px] opacity-20"></div>
 
-          <div className="z-10 text-center mb-10 sm:mb-12 px-2">
-            <h2 className="text-3xl sm:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight">
+          <div className="z-10 text-center mb-6 sm:mb-8 px-2">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 tracking-tight">
               The Perfect Price for Your Needs
             </h2>
-            <p className="text-white/70 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed">
+            <p className="text-white/70 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
               Our transparent pricing makes it easy to find a plan that works within your financial constraints.
             </p>
           </div>
 
           {/* Platform Tabs */}
-          <div className="z-10 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full p-1.5 mb-10 sm:mb-16 backdrop-blur-sm">
+          <div className="z-10 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full p-1.5 mb-6 sm:mb-8 backdrop-blur-sm">
             {(["instagram", "tiktok"] as const).map((platform) => (
               <button
                 key={platform}
@@ -478,36 +504,36 @@ export default function Home() {
           </div>
 
           {/* Pricing Cards — stack on mobile, row on lg */}
-          <div className="z-10 flex flex-col lg:flex-row gap-6 sm:gap-8 w-full max-w-5xl justify-center items-stretch lg:items-center">
+          <div className="z-10 flex flex-col lg:flex-row gap-5 sm:gap-6 w-full max-w-6xl justify-center items-stretch lg:items-center">
             {pricingData[activePlatform].map((plan, idx) => (
               <div
                 key={plan.name}
                 className={`pricing-card group relative w-full lg:w-[33%] backdrop-blur-xl border rounded-[32px] flex flex-col overflow-hidden transition-all duration-500 ${plan.featured
-                  ? "bg-white/10 border-white/30 p-8 sm:p-10 hover:bg-white/15 hover:border-white/50 lg:scale-105 shadow-2xl"
-                  : "bg-white/5 border-white/20 p-7 sm:p-8 hover:bg-white/10 hover:border-white/40"
+                  ? "bg-white/10 border-white/30 p-6 sm:p-7 hover:bg-white/15 hover:border-white/50 lg:scale-105 shadow-2xl"
+                  : "bg-white/5 border-white/20 p-5 sm:p-6 hover:bg-white/10 hover:border-white/40"
                   }`}
               >
                 <div className={`absolute inset-0 bg-gradient-to-b from-transparent via-transparent pointer-events-none ${plan.featured ? "to-[#A9DB1B]/30" : "to-[#A9DB1B]/20"}`}></div>
 
-                <div className={`self-center px-8 py-2 rounded-full shadow-lg ${plan.featured ? "bg-[#A9DB1B] px-10 mb-10 shadow-xl" : "bg-[#8CBF00] mb-8"}`}>
+                <div className={`self-center px-8 py-1.5 rounded-full shadow-lg ${plan.featured ? "bg-[#A9DB1B] px-10 mb-5 shadow-xl" : "bg-[#8CBF00] mb-4"}`}>
                   <span className={`text-white text-sm ${plan.featured ? "font-bold" : "font-medium"}`}>{plan.name}</span>
                 </div>
 
-                <div className={plan.featured ? "mb-5" : "mb-6"}>
+                <div className={plan.featured ? "mb-4" : "mb-4"}>
                   {plan.oldPrice && (
-                    <span className="text-white/40 line-through text-lg block">{plan.oldPrice}</span>
+                    <span className="text-white/40 line-through text-base block">{plan.oldPrice}</span>
                   )}
                   {plan.featured && (
-                    <span className="text-white/70 text-lg block font-medium">Only With</span>
+                    <span className="text-white/70 text-base block font-medium">Only With</span>
                   )}
-                  <span className={`text-white font-bold ${plan.featured ? "text-4xl sm:text-5xl tracking-tight" : "text-4xl sm:text-5xl"}`}>{plan.price}</span>
+                  <span className="text-white font-bold text-3xl sm:text-4xl tracking-tight">{plan.price}</span>
                 </div>
 
                 <div className="flex-grow">
-                  <h3 className="text-white/70 text-xl font-medium mb-4">What You Get:</h3>
-                  <ul className="space-y-3">
+                  <h3 className="text-white/70 text-base font-medium mb-3">What You Get:</h3>
+                  <ul className="space-y-2">
                     {[plan.views, ...plan.features].map((item, i2) => (
-                      <li key={i2} className="flex items-center gap-3 text-[#FAFAFA]/70 font-medium">
+                      <li key={i2} className="flex items-center gap-2.5 text-[#FAFAFA]/70 font-medium text-sm">
                         <CheckIcon />
                         {item}
                       </li>
@@ -519,9 +545,9 @@ export default function Home() {
                   href="https://wa.me/6289685482928"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`mt-8 self-center flex items-center gap-2 text-white rounded-full transition-all hover:scale-105 active:scale-95 ${plan.featured
-                    ? "justify-between bg-[#A9DB1B] px-10 py-3 font-bold shadow-xl"
-                    : "bg-[#8CBF00] px-8 py-3 font-medium shadow-lg"
+                  className={`mt-6 self-center flex items-center gap-2 text-white text-sm rounded-full transition-all hover:scale-105 active:scale-95 ${plan.featured
+                    ? "justify-between bg-[#A9DB1B] px-9 py-2.5 font-bold shadow-xl"
+                    : "bg-[#8CBF00] px-7 py-2.5 font-medium shadow-lg"
                     }`}
                 >
                   Buy Now
@@ -530,22 +556,45 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          {/* Custom campaign CTA — for briefs the three fixed tiers don't cover */}
+          <div className="z-10 mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 text-center sm:text-left">
+            <div className="flex flex-col">
+              <span className="text-white font-bold text-base sm:text-lg">
+                Butuh Custom Campaign?
+              </span>
+              <span className="text-white/60 text-sm">
+                Periode, jumlah creator, dan budget bisa disesuaikan kebutuhan brand kamu.
+              </span>
+            </div>
+            <a
+              href={CUSTOM_CAMPAIGN_WA}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 flex items-center gap-2 rounded-full border border-[#A9DB1B]/60 bg-[#A9DB1B]/10 px-6 py-2.5 text-sm font-bold text-[#A9DB1B] transition-all hover:bg-[#A9DB1B] hover:text-[#1B198F] hover:scale-105 active:scale-95"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.16c-.25.69-1.43 1.32-1.99 1.4-.53.08-1.17.11-1.89-.12-.44-.14-1-.32-1.72-.64-3.02-1.3-4.99-4.34-5.14-4.54-.15-.2-1.23-1.63-1.23-3.11 0-1.48.78-2.21 1.05-2.51.27-.3.59-.38.79-.38.2 0 .39 0 .57.01.18.01.42-.07.66.5.25.58.84 2.02.91 2.17.08.15.13.32.02.52-.1.2-.16.32-.31.5-.15.17-.32.39-.46.52-.15.15-.31.31-.13.61.18.3.79 1.3 1.69 2.11 1.16 1.03 2.13 1.35 2.43 1.5.3.15.48.13.66-.08.18-.2.76-.89.96-1.19.2-.3.4-.25.67-.15.28.1 1.75.83 2.05.98.3.15.5.22.57.35.08.13.08.74-.17 1.45z" />
+              </svg>
+              Hubungi Kami
+            </a>
+          </div>
         </section>
 
         {/* ── CAREERS SECTION ── */}
-        <section id="careers" className="w-full relative flex flex-col items-center justify-center bg-[#FAFAFA] py-16 sm:py-24 px-5 sm:px-8 lg:p-24 overflow-hidden font-sans border-t border-black/5">
+        <section id="careers" className="w-full min-h-screen relative flex flex-col items-center justify-center bg-[#FAFAFA] py-12 sm:py-16 px-5 sm:px-8 lg:px-12 overflow-hidden font-sans border-t border-black/5">
           {/* Decorative Floating Blobs */}
           <div className="z-0 absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-[#A9DB1B]/10 rounded-full blur-[120px]"></div>
           <div className="z-0 absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-[#1B198F]/5 rounded-full blur-[100px]"></div>
 
-          <div className="z-10 w-full max-w-7xl flex flex-col lg:flex-row items-center justify-between gap-12 sm:gap-20">
+          <div className="z-10 w-full max-w-[1600px] flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
             {/* Left Column */}
             <div className="w-full lg:w-1/2 flex flex-col items-start">
               <span className="text-[#A9DB1B] font-bold tracking-widest uppercase mb-3 text-sm">Join the Revolution</span>
-              <h2 className="text-6xl sm:text-7xl lg:text-[100px] font-black leading-[0.85] text-[#1B198F] tracking-tighter mb-8 sm:mb-10">
+              <h2 className="text-5xl sm:text-6xl lg:text-8xl font-black leading-[0.85] text-[#1B198F] tracking-tighter mb-6 sm:mb-8">
                 START <br /> YOUR <br /> <span className="text-[#A9DB1B]">CAREER.</span>
               </h2>
-              <p className="text-[#1B198F]/60 text-base sm:text-xl font-medium max-w-md leading-relaxed">
+              <p className="text-[#1B198F]/60 text-base sm:text-lg font-medium max-w-md leading-relaxed">
                 Jadilah bagian dari ekosistem konten kreator. Kami tidak hanya menawarkan pekerjaan, tapi sebuah perjalanan untuk menjadi <span className="text-[#1B198F] font-bold">Creator-Entrepreneur</span> sejati.
               </p>
             </div>
@@ -557,8 +606,8 @@ export default function Home() {
               <div className="relative w-full bg-white rounded-[40px] shadow-2xl overflow-hidden border border-black/5 flex flex-col">
                 <div className="h-2 w-full bg-gradient-to-r from-[#1B198F] to-[#A9DB1B]"></div>
 
-                <div className="p-8 sm:p-12 flex flex-col">
-                  <div className="flex justify-between items-start mb-8 sm:mb-12">
+                <div className="p-6 sm:p-8 flex flex-col">
+                  <div className="flex justify-between items-start mb-6 sm:mb-8">
                     <div className="flex flex-col">
                       <span className="text-[#1B198F] font-bold text-xl sm:text-2xl">Ternak Creator.</span>
                       <span className="text-[#1B198F]/40 text-sm font-medium">Professional Access</span>
@@ -568,29 +617,27 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col mb-6">
-                    <h4 className="text-[#1B198F]/40 text-lg font-medium mb-1">Lifetime Membership</h4>
-                    <div className="flex flex-col mb-4">
-                      <span className="text-[#1B198F]/40 line-through text-2xl sm:text-3xl font-bold">Rp999.000</span>
-                      <span className="text-[#1B198F] text-6xl sm:text-7xl font-black tracking-tight">Free</span>
+                  <div className="flex flex-col mb-5">
+                    <h4 className="text-[#1B198F]/40 text-base font-medium mb-1">Lifetime Membership</h4>
+                    <div className="flex flex-col mb-3">
+                      <span className="text-[#1B198F]/40 line-through text-xl sm:text-2xl font-bold">Rp100.000</span>
+                      <span className="text-[#1B198F] text-5xl sm:text-6xl font-black tracking-tight">Free</span>
                     </div>
-                    <p className="text-[#1B198F]/50 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8">
-                      Dapatkan akses penuh ke komunitas eksklusif, dan Modul Pembelajaran Eksklusif seumur hidup.
+                    <p className="text-[#1B198F]/50 text-sm leading-relaxed mb-5 sm:mb-6">
+                      Dapatkan akses penuh ke campaign brand, komunitas creator, dan peluang kolaborasi seumur hidup.
                     </p>
 
-                    <ul className="space-y-3">
-                      {['Exclusive Modul', 'Big Community', 'Monetize Guide', 'Collab Opportunities'].map((item, idx) => (
-                        <li key={idx} className="flex items-center gap-3 text-[#1B198F]/70 font-medium">
-                          <div className="w-5 h-5 rounded-full bg-[#A9DB1B]/20 flex items-center justify-center text-[#A9DB1B]">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-                          </div>
+                    <ul className="space-y-2.5">
+                      {['Akses Campaign & Project', 'Creator Community', 'Collaboration Opportunities'].map((item) => (
+                        <li key={item} className="flex items-center gap-2.5 text-[#1B198F]/70 font-medium text-sm">
+                          <CheckIcon />
                           {item}
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSdFJyxcZ1cudvbxsje1iHcGH7me8rlAdqQGHi4j3UnnKtEupA/viewform" target="_blank" rel="noopener noreferrer" className="block w-full group relative overflow-hidden bg-[#1B198F] text-white py-5 rounded-2xl font-bold text-lg sm:text-xl transition-all hover:shadow-[0_20px_40px_rgba(27,25,143,0.3)] hover:-translate-y-1 active:scale-[0.98] text-center">
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSdFJyxcZ1cudvbxsje1iHcGH7me8rlAdqQGHi4j3UnnKtEupA/viewform" target="_blank" rel="noopener noreferrer" className="block w-full group relative overflow-hidden bg-[#1B198F] text-white py-4 rounded-2xl font-bold text-base sm:text-lg transition-all hover:shadow-[0_20px_40px_rgba(27,25,143,0.3)] hover:-translate-y-1 active:scale-[0.98] text-center">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                     Dapatkan Akses Sekarang
                   </a>
@@ -602,52 +649,50 @@ export default function Home() {
 
 
         {/* ── CREATOR VIDEO REVIEWS SECTION ── */}
-        <section className="w-full relative flex flex-col items-center justify-center bg-[#FAFAFA] py-16 sm:py-24 px-5 sm:px-8 lg:px-20 overflow-hidden font-sans border-t border-black/5">
+        <section className="w-full min-h-screen relative flex flex-col items-center justify-center bg-[#FAFAFA] py-12 sm:py-16 px-5 sm:px-8 lg:px-12 overflow-hidden font-sans border-t border-black/5">
           {/* Decorative Blobs */}
           <div className="z-0 absolute top-[-15%] right-[-10%] w-[550px] h-[550px] bg-[#1B198F]/5 rounded-full blur-[130px] pointer-events-none"></div>
           <div className="z-0 absolute bottom-[-10%] left-[-10%] w-[450px] h-[450px] bg-[#A9DB1B]/10 rounded-full blur-[110px] pointer-events-none"></div>
 
-          <div className="relative z-10 w-full max-w-7xl flex flex-col gap-10 sm:gap-16">
+          <div className="relative z-10 w-full max-w-[1600px] flex flex-col gap-8 sm:gap-10">
             {/* Header */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <span className="text-[#1B198F] font-bold tracking-[0.2em] uppercase text-sm">Real Story</span>
               </div>
-              <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-[#1B198F] tracking-tighter leading-[0.95]">
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#1B198F] tracking-tighter leading-[0.95]">
                 Cerita Langsung <br />
                 dari <span className="text-[#A9DB1B] italic">Creator</span> Kami.
               </h2>
-              <p className="text-[#1B198F]/50 text-base sm:text-lg font-medium max-w-lg">
+              <p className="text-[#1B198F]/50 text-sm sm:text-base font-medium max-w-lg">
                 Dengar sendiri pengalaman para content creator setelah bergabung dan berkembang bersama Ternak Creator.
               </p>
             </div>
 
-            {/* Video Grid */}
-            <div className="grid w-full grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-10 max-w-3xl mx-auto">
-              <CreatorReviewVideo
-                src="/review-1.webm"
-                // poster="/reviews/poster-1.jpg"
-                name="Gilang Hanansyah"
-                role="Content Creator"
-              />
-              <CreatorReviewVideo
-                src="/review-2.webm"
-                // poster="/reviews/poster-2.jpg"
-                name="Nisa Chandra"
-                role="Content Creator"
-              />
+            {/* Video marquee — same seamless-loop trick as the logo strip:
+                the list is rendered twice and the track shifts by half. */}
+            <div className="marquee w-full">
+              <div className="marquee-track marquee-track--videos">
+                {[0, 1].map((copy) => (
+                  <div key={copy} className="flex shrink-0 gap-4 sm:gap-6 pr-4 sm:pr-6" aria-hidden={copy === 1}>
+                    {CREATOR_REVIEWS.map((src) => (
+                      <CreatorReviewVideo key={src} src={src} />
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         {/* ── TESTIMONIALS SECTION ── */}
-        <section id="testimonials" className="w-full relative flex flex-col items-center justify-center bg-[#1B198F] py-16 sm:py-32 px-5 sm:px-6 lg:px-20 overflow-hidden font-sans">
+        <section id="testimonials" className="w-full min-h-screen relative flex flex-col items-center justify-center bg-[#1B198F] py-12 sm:py-16 px-5 sm:px-8 lg:px-12 overflow-hidden font-sans">
           {/* Decorative Background Elements */}
           <div className="absolute top-10 right-10 w-[600px] h-[600px] bg-[#A9DB1B] rounded-full blur-[200px] opacity-10 pointer-events-none"></div>
           <div className="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-white rounded-full blur-[180px] opacity-[0.05] pointer-events-none"></div>
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '100px 100px' }}></div>
 
-          <div className="relative z-10 w-full max-w-7xl flex flex-col gap-12 sm:gap-20">
+          <div className="relative z-10 w-full max-w-[1600px] flex flex-col gap-12 sm:gap-20">
 
             {/* Header */}
             <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 sm:gap-10 border-b border-white/10 pb-8 sm:pb-10">
@@ -668,11 +713,11 @@ export default function Home() {
             </div>
 
             {/* Testimonials Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 items-stretch max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 items-stretch max-w-6xl mx-auto">
               {[
-                { name: "Tim Pecel Yojo", role: "Pecel Yojo", logo: "/logo pecel yojo.jpg", logoClass: "", text: "Awalnya coba-coba doang, eh ternyata hasilnya beneran kerasa. Yang order pecel jadi makin rame, banyak juga yang tau dari konten creator-nya. Enak, ga ribet, tinggal terima jadi.", rating: 5, offset: "" },
-                { name: "Tim Donat Raya", role: "Donat Raya", logo: "/Logo Donat Raya.jpg", logoClass: "", text: "Seneng banget bisa gabung, soalnya biasa promosi sendiri capek dan hasilnya gitu-gitu aja. Sekarang donat kita jadi sering muncul di FYP, orderan online juga ikut naik.", rating: 5, offset: "" },
-                { name: "Tim Wiraadventure Tour and Travel", role: "Wiraadventure Tour and Travel", logo: "/Logo Wira Adventure.jpg", logoClass: "scale-[1] object-[28%_61%]", text: "Buat usaha travel kayak kita, konten itu penting banget buat bangun kepercayaan calon customer. Alhamdulillah setelah pakai jasa creator dari sini, banyak yang tanya-tanya paket trip terus akhirnya booking.", rating: 4.5, offset: "" }
+                { name: "Tim Pecel Yojo", role: "Pecel Yojo", logo: "/logo-pecel-yojo.jpg", logoClass: "", text: "Awalnya coba-coba doang, eh ternyata hasilnya beneran kerasa. Yang order pecel jadi makin rame, banyak juga yang tau dari konten creator-nya. Enak, ga ribet, tinggal terima jadi.", rating: 5, offset: "" },
+                { name: "Tim Donat Raya", role: "Donat Raya", logo: "/Collaborator/logo-donat-raya.jpg", logoClass: "", text: "Seneng banget bisa gabung, soalnya biasa promosi sendiri capek dan hasilnya gitu-gitu aja. Sekarang donat kita jadi sering muncul di FYP, orderan online juga ikut naik.", rating: 5, offset: "" },
+                { name: "Tim Wiraadventure Tour and Travel", role: "Wiraadventure Tour and Travel", logo: "/logo-wira-adventure.jpg", logoClass: "scale-[1] object-[28%_61%]", text: "Buat usaha travel kayak kita, konten itu penting banget buat bangun kepercayaan calon customer. Alhamdulillah setelah pakai jasa creator dari sini, banyak yang tanya-tanya paket trip terus akhirnya booking.", rating: 4.5, offset: "" }
               ].map((testi, i) => (
                 <div
                   key={i}
@@ -738,10 +783,10 @@ export default function Home() {
         <FeedbackForm />
 
         {/* ── FOOTER ── */}
-        <footer className="w-full bg-[#1B198F] pt-14 sm:pt-24 pb-10 sm:pb-12 px-5 sm:px-12 lg:px-24 border-t border-white/5 relative overflow-hidden font-sans">
+        <footer className="w-full bg-[#1B198F] pt-12 sm:pt-16 pb-10 sm:pb-12 px-5 sm:px-8 lg:px-12 border-t border-white/5 relative overflow-hidden font-sans">
           <div className="z-0 absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-[#A9DB1B]/30 to-transparent"></div>
 
-          <div className="z-10 max-w-7xl mx-auto flex flex-col gap-12 sm:gap-20">
+          <div className="z-10 max-w-[1600px] mx-auto flex flex-col gap-12 sm:gap-20">
             <div className="flex flex-col sm:flex-row justify-between gap-10 sm:gap-16">
               {/* Brand Column */}
               <div className="flex flex-col items-start max-w-sm">

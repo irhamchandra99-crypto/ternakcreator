@@ -46,10 +46,23 @@ export async function GET() {
 
   // Payout proofs live in a private bucket, so signing needs the service
   // role. Safe here: the rows already came back RLS-filtered to this user.
-  const admin = createAdminClient();
+  //
+  // Built lazily, and failures degrade to a null URL rather than a 500: the
+  // dashboard is still useful without the receipt thumbnail, and most rows
+  // have no proof to sign at all (nothing verified yet).
+  const rows = (submissions ?? []) as Submission[];
+  let admin: ReturnType<typeof createAdminClient> | null = null;
+  if (rows.some((s) => s.payout_proof)) {
+    try {
+      admin = createAdminClient();
+    } catch (err) {
+      console.error("payout proof signing unavailable:", err);
+    }
+  }
+
   const subs = await Promise.all(
-    ((submissions ?? []) as Submission[]).map(async (s) => {
-      if (!s.payout_proof) return { ...s, payout_proof_url: null };
+    rows.map(async (s) => {
+      if (!s.payout_proof || !admin) return { ...s, payout_proof_url: null };
       const { data } = await admin.storage
         .from("payout-proofs")
         .createSignedUrl(s.payout_proof, SIGNED_URL_TTL);

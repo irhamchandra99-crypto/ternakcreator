@@ -51,7 +51,7 @@ export default function FeedbackForm() {
   return (
     <section
       id="feedback"
-      className="w-full relative flex flex-col items-center justify-center bg-[#FAFAFA] py-16 sm:py-24 px-5 sm:px-8 lg:px-20 overflow-hidden font-sans border-t border-black/5"
+      className="w-full min-h-screen relative flex flex-col items-center justify-center bg-[#FAFAFA] py-12 sm:py-16 px-5 sm:px-8 lg:px-12 overflow-hidden font-sans border-t border-black/5"
     >
       {/* Decorative Blobs */}
       <div className="z-0 absolute top-[-15%] left-[-10%] w-[500px] h-[500px] bg-[#A9DB1B]/10 rounded-full blur-[130px] pointer-events-none" />

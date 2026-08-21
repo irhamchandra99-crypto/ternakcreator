@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "Ternak Creator",
   description: "Platform kolaborasi UMKM dan nano-micro creator terbaik di Indonesia.",
   icons: {
-    icon: "/LOGO TC.webp",
+    icon: "/logo-tc.webp",
   },
 };
 

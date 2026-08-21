@@ -212,6 +212,12 @@ body {
   animation-play-state: paused;
 }
 
+/* The review clips are far wider than a logo, so the same 32s sweep would
+   fling them past. Slow the track down instead of shortening the list. */
+.marquee-track--videos {
+  animation-duration: 90s;
+}
+
 @keyframes marquee-scroll {
   from {
     transform: translateX(0);
