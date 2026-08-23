@@ -1,7 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { PLATFORM_LABEL, formatDate, type Campaign, type Platform } from "@/lib/types";
+import {
+  PLATFORM_LABEL,
+  PLATFORMS,
+  SECTOR_LABEL,
+  SECTORS,
+  formatDate,
+  type Campaign,
+  type Platform,
+  type Sector,
+} from "@/lib/types";
 
 const FIELD =
   "w-full rounded-2xl border border-[#1B198F]/15 bg-white px-4 py-3 text-[#1B198F] placeholder:text-[#1B198F]/30 outline-none focus:border-[#A9DB1B] focus:ring-2 focus:ring-[#A9DB1B]/30 transition-all";
@@ -13,10 +22,12 @@ export default function AdminCampaigns() {
   // form state
   const [title, setTitle] = useState("");
   const [brandName, setBrandName] = useState("");
-  const [platform, setPlatform] = useState<Platform>("instagram");
+  const [platforms, setPlatforms] = useState<Platform[]>(["instagram"]);
+  const [sector, setSector] = useState<Sector>("fnb");
   const [brief, setBrief] = useState("");
   const [rewardNote, setRewardNote] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
+  const [briefPdf, setBriefPdf] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -38,6 +49,12 @@ export default function AdminCampaigns() {
     load();
   }, [load]);
 
+  const togglePlatform = (p: Platform) => {
+    setPlatforms((prev) =>
+      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]
+    );
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -47,10 +64,12 @@ export default function AdminCampaigns() {
     const form = new FormData();
     form.set("title", title);
     form.set("brand_name", brandName);
-    form.set("platform", platform);
+    platforms.forEach((p) => form.append("platforms", p));
+    form.set("sector", sector);
     form.set("brief", brief);
     form.set("reward_note", rewardNote);
     if (logo) form.set("logo", logo);
+    if (briefPdf) form.set("brief_pdf", briefPdf);
 
     try {
       const res = await fetch("/api/admin/campaigns", { method: "POST", body: form });
@@ -61,9 +80,12 @@ export default function AdminCampaigns() {
       }
       setTitle("");
       setBrandName("");
+      setPlatforms(["instagram"]);
+      setSector("fnb");
       setBrief("");
       setRewardNote("");
       setLogo(null);
+      setBriefPdf(null);
       setSuccess("Campaign berhasil dipublikasikan.");
       await load();
     } catch {
@@ -134,17 +156,40 @@ export default function AdminCampaigns() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="c-platform" className="text-[#1B198F]/70 text-sm font-semibold">
-              Platform Upload
+            <span className="text-[#1B198F]/70 text-sm font-semibold">Platform Upload</span>
+            <div className="flex flex-wrap gap-3 pt-1">
+              {PLATFORMS.map((p) => (
+                <label
+                  key={p}
+                  className="flex items-center gap-2 text-sm font-medium text-[#1B198F] cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={platforms.includes(p)}
+                    onChange={() => togglePlatform(p)}
+                    className="w-4 h-4 accent-[#1B198F]"
+                  />
+                  {PLATFORM_LABEL[p]}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="c-sector" className="text-[#1B198F]/70 text-sm font-semibold">
+              Sektor / Segmentasi
             </label>
             <select
-              id="c-platform"
+              id="c-sector"
               className={FIELD}
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value as Platform)}
+              value={sector}
+              onChange={(e) => setSector(e.target.value as Sector)}
             >
-              <option value="instagram">Instagram</option>
-              <option value="tiktok">TikTok</option>
+              {SECTORS.map((s) => (
+                <option key={s} value={s}>
+                  {SECTOR_LABEL[s]}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -176,17 +221,35 @@ export default function AdminCampaigns() {
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="c-logo" className="text-[#1B198F]/70 text-sm font-semibold">
-            Logo Brand <span className="font-normal text-[#1B198F]/40">(opsional, maks 5 MB)</span>
-          </label>
-          <input
-            id="c-logo"
-            type="file"
-            accept="image/*"
-            onChange={(e) => setLogo(e.target.files?.[0] ?? null)}
-            className="w-full text-sm text-[#1B198F]/70 file:mr-4 file:rounded-full file:border-0 file:bg-[#1B198F]/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#1B198F] hover:file:bg-[#1B198F]/15"
-          />
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="c-logo" className="text-[#1B198F]/70 text-sm font-semibold">
+              Logo Brand <span className="font-normal text-[#1B198F]/40">(opsional, maks 5 MB)</span>
+            </label>
+            <input
+              id="c-logo"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setLogo(e.target.files?.[0] ?? null)}
+              className="w-full text-sm text-[#1B198F]/70 file:mr-4 file:rounded-full file:border-0 file:bg-[#1B198F]/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#1B198F] hover:file:bg-[#1B198F]/15"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="c-brief-pdf" className="text-[#1B198F]/70 text-sm font-semibold">
+              Brief PDF <span className="font-normal text-[#1B198F]/40">(opsional, maks 10 MB)</span>
+            </label>
+            <input
+              id="c-brief-pdf"
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setBriefPdf(e.target.files?.[0] ?? null)}
+              className="w-full text-sm text-[#1B198F]/70 file:mr-4 file:rounded-full file:border-0 file:bg-[#1B198F]/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#1B198F] hover:file:bg-[#1B198F]/15"
+            />
+            <span className="text-[#1B198F]/40 text-xs">
+              Creator bisa unduh brief lengkap ini dari dashboard.
+            </span>
+          </div>
         </div>
 
         {error && (
@@ -260,8 +323,16 @@ export default function AdminCampaigns() {
               </div>
 
               <div className="flex flex-wrap gap-2 text-xs">
-                <span className="px-2.5 py-1 rounded-full bg-[#1B198F]/10 text-[#1B198F] font-semibold">
-                  {PLATFORM_LABEL[c.platform]}
+                {(c.platforms ?? []).map((p) => (
+                  <span
+                    key={p}
+                    className="px-2.5 py-1 rounded-full bg-[#1B198F]/10 text-[#1B198F] font-semibold"
+                  >
+                    {PLATFORM_LABEL[p]}
+                  </span>
+                ))}
+                <span className="px-2.5 py-1 rounded-full bg-[#1B198F]/5 text-[#1B198F]/70 font-semibold">
+                  {SECTOR_LABEL[c.sector]}
                 </span>
                 {c.reward_note && (
                   <span className="px-2.5 py-1 rounded-full bg-[#A9DB1B]/20 text-[#5c7a00] font-semibold">
@@ -273,6 +344,17 @@ export default function AdminCampaigns() {
               <p className="text-[#1B198F]/70 text-sm leading-relaxed whitespace-pre-wrap break-words line-clamp-4">
                 {c.brief}
               </p>
+
+              {c.brief_pdf_url && (
+                <a
+                  href={c.brief_pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="self-start text-xs font-semibold text-[#1B198F] underline underline-offset-2 hover:text-[#A9DB1B]"
+                >
+                  📄 Lihat Brief PDF
+                </a>
+              )}
 
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#1B198F]/5">
                 <span className="text-[#1B198F]/40 text-xs">{formatDate(c.created_at)}</span>

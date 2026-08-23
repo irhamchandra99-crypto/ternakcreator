@@ -4,6 +4,12 @@
 export type Platform = "instagram" | "tiktok";
 export type CampaignStatus = "open" | "closed";
 export type SubmissionStatus = "pending" | "verified" | "rejected";
+export type Sector =
+  | "fnb"
+  | "event-entertainment"
+  | "tourism"
+  | "retail"
+  | "services-lifestyle";
 
 export type Campaign = {
   id: string;
@@ -11,8 +17,11 @@ export type Campaign = {
   brand_name: string;
   brand_logo: string | null; // storage path
   brand_logo_url?: string | null; // resolved public URL
-  platform: Platform;
+  platforms: Platform[];
+  sector: Sector;
   brief: string;
+  brief_pdf: string | null; // storage path
+  brief_pdf_url?: string | null; // resolved public URL
   reward_note: string | null;
   status: CampaignStatus;
   created_at: string;
@@ -53,6 +62,24 @@ export const PLATFORM_LABEL: Record<Platform, string> = {
   instagram: "Instagram",
   tiktok: "TikTok",
 };
+
+export const PLATFORMS: Platform[] = ["instagram", "tiktok"];
+
+export const SECTOR_LABEL: Record<Sector, string> = {
+  fnb: "F&B",
+  "event-entertainment": "Event & Entertainment",
+  tourism: "Tourism",
+  retail: "Retail",
+  "services-lifestyle": "Services & Lifestyle",
+};
+
+export const SECTORS: Sector[] = [
+  "fnb",
+  "event-entertainment",
+  "tourism",
+  "retail",
+  "services-lifestyle",
+];
 
 export function formatRupiah(value: number | null | undefined): string {
   if (value == null) return "-";

@@ -124,7 +124,7 @@ function MyCampaignCard({
           <h3 className="font-bold text-white leading-tight break-words">{campaign.title}</h3>
           <p className="text-white/50 text-sm">{campaign.brand_name}</p>
           <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-white/80">
-            Upload di {PLATFORM_LABEL[campaign.platform]}
+            Upload di {(campaign.platforms ?? []).map((p) => PLATFORM_LABEL[p]).join(" & ")}
           </span>
         </div>
       </div>
@@ -142,6 +142,16 @@ function MyCampaignCard({
           <p className="mt-3 text-white/80 text-sm leading-relaxed whitespace-pre-wrap break-words">
             {campaign.brief}
           </p>
+        )}
+        {campaign.brief_pdf_url && (
+          <a
+            href={campaign.brief_pdf_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block text-[#A9DB1B] text-sm font-semibold underline underline-offset-2"
+          >
+            📄 Unduh brief lengkap (PDF)
+          </a>
         )}
         {campaign.reward_note && (
           <p className="mt-3 text-[#A9DB1B] text-sm font-semibold">💰 {campaign.reward_note}</p>
@@ -310,7 +320,7 @@ function SetorViewForm({
           onChange={(e) => setVideoUrl(e.target.value)}
           required
           className={FIELD}
-          placeholder={`Link ${PLATFORM_LABEL[campaign.platform]} kamu`}
+          placeholder={`Link ${(campaign.platforms ?? []).map((p) => PLATFORM_LABEL[p]).join("/")} kamu`}
         />
       </div>
 

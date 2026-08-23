@@ -88,6 +88,10 @@ export async function GET() {
               ? supabase.storage.from("brand-logos").getPublicUrl(campaign.brand_logo).data
                   .publicUrl
               : null,
+            brief_pdf_url: campaign.brief_pdf
+              ? supabase.storage.from("campaign-briefs").getPublicUrl(campaign.brief_pdf).data
+                  .publicUrl
+              : null,
           }
         : null,
       submission: latestByClaim.get(claim.id) ?? null,

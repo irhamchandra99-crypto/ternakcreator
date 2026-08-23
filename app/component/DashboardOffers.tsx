@@ -1,14 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { PLATFORM_LABEL, type Campaign } from "@/lib/types";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { PLATFORM_LABEL, SECTOR_LABEL, SECTORS, type Campaign, type Sector } from "@/lib/types";
 
 type Offer = Campaign & { claimed: boolean };
+type SortOrder = "newest" | "oldest";
 
 const PLATFORM_STYLE: Record<string, string> = {
   instagram: "bg-gradient-to-r from-[#F58529] to-[#DD2A7B] text-white",
   tiktok: "bg-black text-white",
 };
+
+const SELECT_FIELD =
+  "rounded-full border border-white/15 bg-white/[0.07] px-4 py-2 text-sm font-semibold text-white outline-none focus:border-[#A9DB1B] focus:ring-2 focus:ring-[#A9DB1B]/30 transition-all";
 
 export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }) {
   const [items, setItems] = useState<Offer[]>([]);
@@ -16,6 +20,8 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
   const [open, setOpen] = useState<Offer | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [error, setError] = useState("");
+  const [sectorFilter, setSectorFilter] = useState<Sector | "all">("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -54,6 +60,15 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
     }
   };
 
+  const visibleItems = useMemo(() => {
+    const filtered =
+      sectorFilter === "all" ? items : items.filter((c) => c.sector === sectorFilter);
+    return [...filtered].sort((a, b) => {
+      const diff = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      return sortOrder === "newest" ? -diff : diff;
+    });
+  }, [items, sectorFilter, sortOrder]);
+
   if (loading) {
     return <p className="text-white/50 text-sm animate-pulse">Memuat penawaran...</p>;
   }
@@ -67,15 +82,47 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
         </p>
       </div>
 
+      {items.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            className={SELECT_FIELD}
+            value={sectorFilter}
+            onChange={(e) => setSectorFilter(e.target.value as Sector | "all")}
+            aria-label="Filter sektor campaign"
+          >
+            <option value="all">Semua Sektor</option>
+            {SECTORS.map((s) => (
+              <option key={s} value={s}>
+                {SECTOR_LABEL[s]}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className={SELECT_FIELD}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+            aria-label="Urutkan campaign"
+          >
+            <option value="newest">Terbaru</option>
+            <option value="oldest">Terlama</option>
+          </select>
+        </div>
+      )}
+
       {error && <p className="text-red-300 text-sm">{error}</p>}
 
       {items.length === 0 ? (
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center text-white/40 font-medium">
           Belum ada penawaran campaign. Cek lagi nanti ya!
         </div>
+      ) : visibleItems.length === 0 ? (
+        <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center text-white/40 font-medium">
+          Tidak ada campaign di sektor ini.
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((c) => (
+          {visibleItems.map((c) => (
             <button
               key={c.id}
               onClick={() => {
@@ -104,12 +151,18 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    PLATFORM_STYLE[c.platform] ?? "bg-white/10 text-white"
-                  }`}
-                >
-                  {PLATFORM_LABEL[c.platform]}
+                {(c.platforms ?? []).map((p) => (
+                  <span
+                    key={p}
+                    className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      PLATFORM_STYLE[p] ?? "bg-white/10 text-white"
+                    }`}
+                  >
+                    {PLATFORM_LABEL[p]}
+                  </span>
+                ))}
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white/70">
+                  {SECTOR_LABEL[c.sector]}
                 </span>
                 {c.reward_note && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#A9DB1B]/20 text-[#A9DB1B]">
@@ -162,12 +215,18 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  PLATFORM_STYLE[open.platform] ?? "bg-white/10 text-white"
-                }`}
-              >
-                Upload di {PLATFORM_LABEL[open.platform]}
+              {(open.platforms ?? []).map((p) => (
+                <span
+                  key={p}
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    PLATFORM_STYLE[p] ?? "bg-white/10 text-white"
+                  }`}
+                >
+                  Upload di {PLATFORM_LABEL[p]}
+                </span>
+              ))}
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white">
+                {SECTOR_LABEL[open.sector]}
               </span>
               {open.reward_note && (
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#A9DB1B]/20 text-[#A9DB1B]">
@@ -184,6 +243,18 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
                 {open.brief}
               </p>
             </div>
+
+            {open.brief_pdf_url && (
+              <a
+                href={open.brief_pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between gap-3 rounded-2xl bg-[#A9DB1B]/10 border border-[#A9DB1B]/30 px-4 py-3.5 text-[#A9DB1B] transition-all hover:bg-[#A9DB1B]/15"
+              >
+                <span className="text-sm font-bold">📄 Unduh brief lengkap (PDF) sebelum klaim</span>
+                <span className="text-sm font-bold shrink-0">Unduh →</span>
+              </a>
+            )}
 
             {error && <p className="text-red-300 text-sm">{error}</p>}
 

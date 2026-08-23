@@ -38,6 +38,9 @@ export async function GET() {
     brand_logo_url: c.brand_logo
       ? supabase.storage.from("brand-logos").getPublicUrl(c.brand_logo).data.publicUrl
       : null,
+    brief_pdf_url: c.brief_pdf
+      ? supabase.storage.from("campaign-briefs").getPublicUrl(c.brief_pdf).data.publicUrl
+      : null,
     claimed: claimed.has(c.id),
   }));
 

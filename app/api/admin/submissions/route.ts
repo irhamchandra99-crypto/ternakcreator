@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("submissions")
-    .select("*, campaigns(title, brand_name, platform)")
+    .select("*, campaigns(title, brand_name, platforms)")
     .order("created_at", { ascending: false });
 
   if (error) {

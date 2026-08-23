@@ -2,16 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { requireAdmin } from "@/lib/adminGuard";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Campaign, Platform } from "@/lib/types";
+import { PLATFORMS, SECTORS, type Campaign, type Platform, type Sector } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const PLATFORMS: Platform[] = ["instagram", "tiktok"];
 const MAX_LOGO_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_PDF_BYTES = 10 * 1024 * 1024; // 10 MB
 
-// Resolves each campaign's `brand_logo` storage path into a public URL.
-function withLogoUrls(
+// Resolves each campaign's `brand_logo` / `brief_pdf` storage paths into public URLs.
+function withResolvedUrls(
   supabase: ReturnType<typeof createAdminClient>,
   rows: Campaign[]
 ): Campaign[] {
@@ -19,6 +19,9 @@ function withLogoUrls(
     ...c,
     brand_logo_url: c.brand_logo
       ? supabase.storage.from("brand-logos").getPublicUrl(c.brand_logo).data.publicUrl
+      : null,
+    brief_pdf_url: c.brief_pdf
+      ? supabase.storage.from("campaign-briefs").getPublicUrl(c.brief_pdf).data.publicUrl
       : null,
   }));
 }
@@ -38,7 +41,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Gagal memuat campaign." }, { status: 500 });
   }
 
-  return NextResponse.json({ items: withLogoUrls(supabase, (data ?? []) as Campaign[]) });
+  return NextResponse.json({ items: withResolvedUrls(supabase, (data ?? []) as Campaign[]) });
 }
 
 export async function POST(req: NextRequest) {
@@ -54,10 +57,12 @@ export async function POST(req: NextRequest) {
 
   const title = String(form.get("title") ?? "").trim().slice(0, 160);
   const brandName = String(form.get("brand_name") ?? "").trim().slice(0, 120);
-  const platform = String(form.get("platform") ?? "").trim();
+  const platforms = Array.from(new Set(form.getAll("platforms").map((v) => String(v).trim())));
+  const sector = String(form.get("sector") ?? "").trim();
   const brief = String(form.get("brief") ?? "").trim();
   const rewardNote = String(form.get("reward_note") ?? "").trim().slice(0, 160);
   const logo = form.get("logo");
+  const briefPdf = form.get("brief_pdf");
 
   if (title.length < 3) {
     return NextResponse.json({ error: "Judul campaign terlalu pendek." }, { status: 400 });
@@ -65,8 +70,17 @@ export async function POST(req: NextRequest) {
   if (brandName.length < 2) {
     return NextResponse.json({ error: "Nama brand terlalu pendek." }, { status: 400 });
   }
-  if (!PLATFORMS.includes(platform as Platform)) {
-    return NextResponse.json({ error: "Pilih platform Instagram atau TikTok." }, { status: 400 });
+  if (
+    platforms.length === 0 ||
+    !platforms.every((p): p is Platform => PLATFORMS.includes(p as Platform))
+  ) {
+    return NextResponse.json(
+      { error: "Pilih minimal satu platform: Instagram atau TikTok." },
+      { status: 400 }
+    );
+  }
+  if (!SECTORS.includes(sector as Sector)) {
+    return NextResponse.json({ error: "Pilih sektor campaign yang valid." }, { status: 400 });
   }
   if (brief.length < 10) {
     return NextResponse.json({ error: "Brief terlalu pendek." }, { status: 400 });
@@ -94,14 +108,35 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Optional brief PDF upload.
+  let briefPdfPath: string | null = null;
+  if (briefPdf instanceof File && briefPdf.size > 0) {
+    if (briefPdf.type !== "application/pdf") {
+      return NextResponse.json({ error: "Brief harus berupa file PDF." }, { status: 400 });
+    }
+    if (briefPdf.size > MAX_PDF_BYTES) {
+      return NextResponse.json({ error: "Brief PDF maksimal 10 MB." }, { status: 400 });
+    }
+    briefPdfPath = `${crypto.randomUUID()}.pdf`;
+    const { error: uploadError } = await supabase.storage
+      .from("campaign-briefs")
+      .upload(briefPdfPath, briefPdf, { contentType: "application/pdf", upsert: false });
+    if (uploadError) {
+      console.error("brief pdf upload error:", uploadError);
+      return NextResponse.json({ error: "Gagal mengunggah brief PDF." }, { status: 500 });
+    }
+  }
+
   const { data, error } = await supabase
     .from("campaigns")
     .insert({
       title,
       brand_name: brandName,
       brand_logo: logoPath,
-      platform,
+      platforms,
+      sector,
       brief,
+      brief_pdf: briefPdfPath,
       reward_note: rewardNote || null,
     })
     .select()
@@ -112,5 +147,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Gagal menyimpan campaign." }, { status: 500 });
   }
 
-  return NextResponse.json({ item: withLogoUrls(supabase, [data as Campaign])[0] });
+  return NextResponse.json({ item: withResolvedUrls(supabase, [data as Campaign])[0] });
 }

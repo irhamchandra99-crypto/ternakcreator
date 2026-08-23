@@ -11,7 +11,7 @@ import {
 } from "@/lib/types";
 
 type Row = Submission & {
-  campaigns: { title: string; brand_name: string; platform: Platform } | null;
+  campaigns: { title: string; brand_name: string; platforms: Platform[] } | null;
 };
 
 const STATUS_STYLE: Record<SubmissionStatus, string> = {
@@ -172,7 +172,9 @@ export default function AdminPayouts({ onChanged }: { onChanged?: () => void }) 
 
               <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <Field label="Platform">
-                  {s.campaigns ? PLATFORM_LABEL[s.campaigns.platform] : "-"}
+                  {s.campaigns
+                    ? (s.campaigns.platforms ?? []).map((p) => PLATFORM_LABEL[p]).join(" & ")
+                    : "-"}
                 </Field>
                 <Field label="Link Video">
                   <a

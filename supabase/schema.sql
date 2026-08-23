@@ -18,12 +18,75 @@ create table if not exists public.campaigns (
   title       text not null,
   brand_name  text not null,
   brand_logo  text,                       -- storage path in bucket `brand-logos`
-  platform    text not null check (platform in ('instagram', 'tiktok')),
+  platforms   text[] not null default array['instagram']::text[], -- one or more of instagram/tiktok
+  sector      text not null default 'services-lifestyle',
   brief       text not null,
+  brief_pdf   text,                       -- storage path in bucket `campaign-briefs`
   reward_note text,                       -- e.g. "Rp50.000 per 10rb views"
   status      text not null default 'open' check (status in ('open', 'closed')),
   created_at  timestamptz not null default now()
 );
+
+-- Adds `brief_pdf` to a campaigns table created before this column existed.
+alter table public.campaigns add column if not exists brief_pdf text;
+
+-- Migrates a campaigns table created before `platforms` replaced the
+-- single-value `platform` column.
+alter table public.campaigns add column if not exists platforms text[];
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'campaigns' and column_name = 'platform'
+  ) then
+    update public.campaigns
+      set platforms = array[platform]
+      where platforms is null and platform is not null;
+
+    if exists (select 1 from pg_constraint where conname = 'campaigns_platform_check') then
+      alter table public.campaigns drop constraint campaigns_platform_check;
+    end if;
+
+    alter table public.campaigns drop column platform;
+  end if;
+end $$;
+
+update public.campaigns
+  set platforms = array['instagram']::text[]
+  where platforms is null or array_length(platforms, 1) is null;
+
+alter table public.campaigns alter column platforms set default array['instagram']::text[];
+alter table public.campaigns alter column platforms set not null;
+
+do $$
+begin
+  if exists (select 1 from pg_constraint where conname = 'campaigns_platforms_check') then
+    alter table public.campaigns drop constraint campaigns_platforms_check;
+  end if;
+  alter table public.campaigns
+    add constraint campaigns_platforms_check
+    check (platforms <@ array['instagram', 'tiktok']::text[] and array_length(platforms, 1) > 0);
+end $$;
+
+-- Adds `sector` to a campaigns table created before this column existed.
+alter table public.campaigns add column if not exists sector text not null default 'services-lifestyle';
+alter table public.campaigns alter column sector set default 'services-lifestyle';
+
+-- Reassign any row from a retired sector value before the constraint below rejects it.
+update public.campaigns
+  set sector = 'services-lifestyle'
+  where sector not in ('fnb', 'event-entertainment', 'tourism', 'retail', 'services-lifestyle');
+
+do $$
+begin
+  if exists (select 1 from pg_constraint where conname = 'campaigns_sector_check') then
+    alter table public.campaigns drop constraint campaigns_sector_check;
+  end if;
+  alter table public.campaigns
+    add constraint campaigns_sector_check
+    check (sector in ('fnb', 'event-entertainment', 'tourism', 'retail', 'services-lifestyle'));
+end $$;
 
 -- ── Claims ("Klaim Campaign") ───────────────────────────────────────
 create table if not exists public.campaign_claims (
@@ -94,13 +157,18 @@ create policy "create own submissions"
 
 -- ═══════════════════════════════════════════════════════════════════
 -- Storage buckets
---   brand-logos   public  — brand marks shown on campaign cards
---   analytics     private — creator audience-insight screenshots
---   payout-proofs private — transfer receipts (served via signed URL)
+--   brand-logos     public  — brand marks shown on campaign cards
+--   campaign-briefs public  — brief PDFs uploaded by admin per campaign
+--   analytics       private — creator audience-insight screenshots
+--   payout-proofs   private — transfer receipts (served via signed URL)
 -- ═══════════════════════════════════════════════════════════════════
 
 insert into storage.buckets (id, name, public)
 values ('brand-logos', 'brand-logos', true)
+on conflict (id) do nothing;
+
+insert into storage.buckets (id, name, public)
+values ('campaign-briefs', 'campaign-briefs', true)
 on conflict (id) do nothing;
 
 insert into storage.buckets (id, name, public)
@@ -133,3 +201,9 @@ drop policy if exists "brand logos are public" on storage.objects;
 create policy "brand logos are public"
   on storage.objects for select to public
   using (bucket_id = 'brand-logos');
+
+-- Anyone can read the public campaign-briefs bucket.
+drop policy if exists "campaign briefs are public" on storage.objects;
+create policy "campaign briefs are public"
+  on storage.objects for select to public
+  using (bucket_id = 'campaign-briefs');
