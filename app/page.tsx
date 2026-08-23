@@ -173,6 +173,25 @@ const pricingData = {
   ],
 };
 
+// ── SEWA ALAT FLOW DATA ──
+const RENTAL_STEPS = [
+  { n: "01", t: "PILIH ALAT", d: "Tentukan alat ngonten yang kamu butuhkan." },
+  { n: "02", t: "CEK KETERSEDIAAN", d: "Hubungi admin Ternak Creator dan cek jadwal alat yang tersedia." },
+  { n: "03", t: "BOOKING & BAYAR", d: "Konfirmasi pesanan dan lakukan pembayaran sesuai ketentuan." },
+  { n: "04", t: "PICK UP", d: "Alat siap diambil/digunakan sesuai jadwal yang sudah disepakati. Lokasi pick up di kampus UNY." },
+];
+
+const RENTAL_ITEMS = [
+  { name: "Tripod Selfie Stick Bluetooth Remote", price: "15K/24 jam" },
+  { name: "Selfie Light Portable", price: "18K/24 jam" },
+  { name: "Reflektor Cahaya (Lighting Reflector)", price: "15K/24 jam" },
+  { name: "Alas Background Papan Foto (Props Styling Board)", price: "18K/24 jam" },
+  { name: "Paket Background Stand 2m + Backdrop", price: "18K/24 jam" },
+  { name: "Meja Lipat Portable", price: "25K/24 jam" },
+];
+
+const RENTAL_WA_NUMBER = "6285879053589";
+
 // "Custom Campaign" CTA under the pricing tiers. The chat opens with the brief
 // already half-written so the visitor doesn't have to compose the first message.
 const CUSTOM_CAMPAIGN_WA =
@@ -195,7 +214,33 @@ const CheckIcon = () => (
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activePlatform, setActivePlatform] = useState<"instagram" | "tiktok">("instagram");
+  const [activeTab, setActiveTab] = useState<"instagram" | "tiktok" | "sewa">("instagram");
+  const [rentalDate, setRentalDate] = useState("");
+  const [rentalItems, setRentalItems] = useState<string[]>([]);
+
+  const toggleRentalItem = (name: string) => {
+    setRentalItems((prev) =>
+      prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]
+    );
+  };
+
+  const rentalDateLabel = rentalDate
+    ? new Date(`${rentalDate}T00:00:00`).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "belum dipilih";
+
+  const rentalWaHref =
+    `https://wa.me/${RENTAL_WA_NUMBER}?text=` +
+    encodeURIComponent(
+      "Halo kak, aku mau sewa alat ngonten di Ternak Creator.\n\n" +
+      "Alat yang mau disewa:\n" +
+      (rentalItems.length ? rentalItems.map((i) => `- ${i}`).join("\n") : "- (belum dipilih)") +
+      "\n\nTanggal sewa: " + rentalDateLabel +
+      "\n\nBoleh dibantu cek ketersediaannya kak? Terima kasih!"
+    );
 
   return (
     <div className="w-full min-h-screen relative overflow-hidden bg-[#1B198F] text-white">
@@ -469,43 +514,151 @@ export default function Home() {
 
           <div className="z-10 text-center mb-6 sm:mb-8 px-2">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4 tracking-tight">
-              The Perfect Price for Your Needs
+              {activeTab === "sewa" ? "Sewa Alat Ngonten" : "The Perfect Price for Your Needs"}
             </h2>
             <p className="text-white/70 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-              Our transparent pricing makes it easy to find a plan that works within your financial constraints.
+              {activeTab === "sewa"
+                ? "Lengkapi campaign kamu dengan alat ngonten dari Ternak Creator — prosesnya cepat dan mudah."
+                : "Our transparent pricing makes it easy to find a plan that works within your financial constraints."}
             </p>
           </div>
 
-          {/* Platform Tabs */}
+          {/* Tabs */}
           <div className="z-10 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full p-1.5 mb-6 sm:mb-8 backdrop-blur-sm">
-            {(["instagram", "tiktok"] as const).map((platform) => (
+            {(["instagram", "tiktok", "sewa"] as const).map((tab) => (
               <button
-                key={platform}
-                onClick={() => setActivePlatform(platform)}
-                className={`flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base transition-all duration-300 ${activePlatform === platform
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base transition-all duration-300 ${activeTab === tab
                   ? "bg-[#A9DB1B] text-[#1B198F] shadow-lg"
                   : "text-white/60 hover:text-white"
                   }`}
               >
-                {platform === "instagram" ? (
+                {tab === "instagram" && (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                   </svg>
-                ) : (
+                )}
+                {tab === "tiktok" && (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"></path>
                   </svg>
                 )}
-                {platform === "instagram" ? "Instagram" : "TikTok"}
+                {tab === "sewa" && (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                  </svg>
+                )}
+                {tab === "instagram" ? "Instagram" : tab === "tiktok" ? "TikTok" : "Sewa Alat"}
               </button>
             ))}
           </div>
 
+          {activeTab === "sewa" ? (
+            /* ── Sewa Alat: equipment list + rental flow ── */
+            <div className="z-10 w-full max-w-6xl flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
+              <div className="w-full lg:w-1/2 flex flex-col gap-4">
+                {["/list%201.png", "/list%202.png"].map((src, i) => (
+                  <a
+                    key={src}
+                    href={src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={src}
+                      alt={`Daftar alat ngonten yang bisa disewa — halaman ${i + 1}`}
+                      className="w-full rounded-2xl border border-white/15 shadow-lg transition-transform hover:scale-[1.02]"
+                    />
+                  </a>
+                ))}
+                <span className="text-white/40 text-xs text-center">
+                  Klik gambar untuk lihat ukuran penuh
+                </span>
+              </div>
+
+              <div className="w-full lg:w-1/2 flex flex-col items-start">
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-6 sm:mb-7">
+                  ALUR SEWA ALAT NGONTEN
+                </h3>
+
+                <div className="flex flex-col gap-5 w-full">
+                  {RENTAL_STEPS.map((step) => (
+                    <div key={step.n} className="flex gap-4">
+                      <span className="shrink-0 text-xl sm:text-2xl font-black text-[#A9DB1B]">
+                        {step.n}
+                      </span>
+                      <div className="flex flex-col gap-0.5 pt-0.5">
+                        <h4 className="text-white font-bold text-sm sm:text-base tracking-tight">
+                          {step.t}
+                        </h4>
+                        <p className="text-white/60 text-sm leading-relaxed">{step.d}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Booking date */}
+                <div className="w-full flex flex-col gap-2 mt-8 sm:mt-9">
+                  <label htmlFor="rental-date" className="text-white/70 text-sm font-bold uppercase tracking-wide">
+                    Tanggal Booking
+                  </label>
+                  <input
+                    id="rental-date"
+                    type="date"
+                    value={rentalDate}
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => setRentalDate(e.target.value)}
+                    className="w-full sm:w-64 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-white outline-none focus:border-[#A9DB1B] focus:ring-2 focus:ring-[#A9DB1B]/30 transition-all [color-scheme:dark]"
+                  />
+                </div>
+
+                {/* Equipment checklist */}
+                <div className="w-full flex flex-col gap-2 mt-6">
+                  <span className="text-white/70 text-sm font-bold uppercase tracking-wide">
+                    Pilih Alat
+                  </span>
+                  <div className="flex flex-col gap-2">
+                    {RENTAL_ITEMS.map((item) => (
+                      <label
+                        key={item.name}
+                        className="flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 cursor-pointer hover:bg-white/10 transition-all"
+                      >
+                        <span className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={rentalItems.includes(item.name)}
+                            onChange={() => toggleRentalItem(item.name)}
+                            className="w-4 h-4 accent-[#A9DB1B] shrink-0"
+                          />
+                          <span className="text-white text-sm font-medium">{item.name}</span>
+                        </span>
+                        <span className="text-[#A9DB1B] text-xs font-bold shrink-0">{item.price}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <a
+                  href={rentalWaHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-7 sm:mt-8 self-start flex items-center gap-2 bg-[#A9DB1B] text-[#1B198F] px-7 py-3 rounded-full font-bold text-sm sm:text-base transition-all hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(169,219,27,0.35)] active:scale-[0.98]"
+                >
+                  Hubungi Admin untuk Sewa
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
+                </a>
+              </div>
+            </div>
+          ) : (
+            <>
           {/* Pricing Cards — stack on mobile, row on lg */}
           <div className="z-10 flex flex-col lg:flex-row gap-5 sm:gap-6 w-full max-w-6xl justify-center items-stretch lg:items-center">
-            {pricingData[activePlatform].map((plan, idx) => (
+            {pricingData[activeTab].map((plan, idx) => (
               <div
                 key={plan.name}
                 className={`pricing-card group relative w-full lg:w-[33%] backdrop-blur-xl border rounded-[32px] flex flex-col overflow-hidden transition-all duration-500 ${plan.featured
@@ -579,6 +732,8 @@ export default function Home() {
               Hubungi Kami
             </a>
           </div>
+            </>
+          )}
         </section>
 
         {/* ── CAREERS SECTION ── */}
