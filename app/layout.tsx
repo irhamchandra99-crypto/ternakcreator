@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
 };
 
-const gaId = process.env.NEXT_PUBLIC_GA_ID;
+const gaId = process.env.NEXT_PUBLIC_GA_ID ?? "G-2921DXCVV4";
 
 export default function RootLayout({
   children,
