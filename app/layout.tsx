@@ -12,9 +12,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Ternak Creator",
   description: "Platform Promosi UMKM.",
-  icons: {
-    icon: "/LOGO TC.webp",
-  },
 };
 
 const gaId = process.env.NEXT_PUBLIC_GA_ID ?? "G-2921DXCVV4";
