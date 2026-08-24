@@ -86,51 +86,6 @@ const pricingData = {
     {
       name: "Paket Spark",
       views: "10.000+ Views",
-      price: "Rp200.000",
-      oldPrice: null,
-      featured: false,
-      features: [
-        
-        "Maks. 2 Creator Visit (opsional)",
-        "Organic Content",
-        "Verified Creators",
-        "Campaign Report",
-      ],
-    },
-    {
-      name: "Paket Boost",
-      views: "30.000+ Views",
-      price: "Rp350.000",
-      oldPrice: null,
-      featured: true,
-      features: [
-        
-        "Maks. 5 Creator Visit (opsional)",
-        "Organic Content",
-        "Verified Creators",
-        "Campaign Report",
-      ],
-    },
-    {
-      name: "Paket Impact",
-      views: "50.000+ Views",
-      price: "Rp475.000",
-      oldPrice: null,
-      featured: false,
-      features: [
-        
-        "Maks. 10 Creator Visit (opsional)",
-        "Organic Content",
-        "Verified Creators",
-        "Campaign Report",
-      ],
-    },
-  ],
-
-  tiktok: [
-    {
-      name: "Paket Spark",
-      views: "10.000+ Views",
       price: "Rp225.000",
       oldPrice: null,
       featured: false,
@@ -160,6 +115,51 @@ const pricingData = {
       name: "Paket Impact",
       views: "50.000+ Views",
       price: "Rp500.000",
+      oldPrice: null,
+      featured: false,
+      features: [
+        
+        "Maks. 10 Creator Visit (opsional)",
+        "Organic Content",
+        "Verified Creators",
+        "Campaign Report",
+      ],
+    },
+  ],
+
+  tiktok: [
+    {
+      name: "Paket Spark",
+      views: "10.000+ Views",
+      price: "Rp200.000",
+      oldPrice: null,
+      featured: false,
+      features: [
+        
+        "Maks. 2 Creator Visit (opsional)",
+        "Organic Content",
+        "Verified Creators",
+        "Campaign Report",
+      ],
+    },
+    {
+      name: "Paket Boost",
+      views: "30.000+ Views",
+      price: "Rp350.000",
+      oldPrice: null,
+      featured: true,
+      features: [
+        
+        "Maks. 5 Creator Visit (opsional)",
+        "Organic Content",
+        "Verified Creators",
+        "Campaign Report",
+      ],
+    },
+    {
+      name: "Paket Impact",
+      views: "50.000+ Views",
+      price: "Rp475.000",
       oldPrice: null,
       featured: false,
       features: [
@@ -558,35 +558,42 @@ export default function Home() {
 
           {activeTab === "sewa" ? (
             /* ── Sewa Alat: equipment list + rental flow ── */
-            <div className="z-10 w-full max-w-6xl flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
-              <div className="w-full lg:w-1/2 flex flex-col gap-4">
-                {["/list%201.png", "/list%202.png"].map((src, i) => (
-                  <a
-                    key={src}
-                    href={src}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={src}
-                      alt={`Daftar alat ngonten yang bisa disewa — halaman ${i + 1}`}
-                      className="w-full rounded-2xl border border-white/15 shadow-lg transition-transform hover:scale-[1.02]"
-                    />
-                  </a>
-                ))}
+            <div className="z-10 w-full max-w-[1600px] grid grid-cols-1 lg:grid-cols-12 items-start gap-8 lg:gap-10">
+              {/* Daftar alat — thumbnails side by side so the column stays short */}
+              <div className="w-full lg:col-span-5 flex flex-col gap-3">
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  DAFTAR ALAT
+                </h3>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {["/list%201.png", "/list%202.png"].map((src, i) => (
+                    <a
+                      key={src}
+                      href={src}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={src}
+                        alt={`Daftar alat ngonten yang bisa disewa — halaman ${i + 1}`}
+                        className="w-full rounded-2xl border border-white/15 shadow-lg transition-transform hover:scale-[1.02]"
+                      />
+                    </a>
+                  ))}
+                </div>
                 <span className="text-white/40 text-xs text-center">
                   Klik gambar untuk lihat ukuran penuh
                 </span>
               </div>
 
-              <div className="w-full lg:w-1/2 flex flex-col items-start">
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-6 sm:mb-7">
+              {/* Alur sewa */}
+              <div className="w-full lg:col-span-3 flex flex-col items-start">
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-5 sm:mb-6">
                   ALUR SEWA ALAT NGONTEN
                 </h3>
 
-                <div className="flex flex-col gap-5 w-full">
+                <div className="flex flex-col gap-4 sm:gap-5 w-full">
                   {RENTAL_STEPS.map((step) => (
                     <div key={step.n} className="flex gap-4">
                       <span className="shrink-0 text-xl sm:text-2xl font-black text-[#A9DB1B]">
@@ -601,9 +608,16 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Booking form */}
+              <div className="w-full lg:col-span-4 flex flex-col items-start">
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-5 sm:mb-6">
+                  BOOKING ALAT
+                </h3>
 
                 {/* Booking date */}
-                <div className="w-full flex flex-col gap-2 mt-8 sm:mt-9">
+                <div className="w-full flex flex-col gap-2">
                   <label htmlFor="rental-date" className="text-white/70 text-sm font-bold uppercase tracking-wide">
                     Tanggal Booking
                   </label>
@@ -613,20 +627,20 @@ export default function Home() {
                     value={rentalDate}
                     min={new Date().toISOString().split("T")[0]}
                     onChange={(e) => setRentalDate(e.target.value)}
-                    className="w-full sm:w-64 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-white outline-none focus:border-[#A9DB1B] focus:ring-2 focus:ring-[#A9DB1B]/30 transition-all [color-scheme:dark]"
+                    className="w-full sm:w-64 rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-white outline-none focus:border-[#A9DB1B] focus:ring-2 focus:ring-[#A9DB1B]/30 transition-all [color-scheme:dark]"
                   />
                 </div>
 
                 {/* Equipment checklist */}
-                <div className="w-full flex flex-col gap-2 mt-6">
+                <div className="w-full flex flex-col gap-2 mt-5">
                   <span className="text-white/70 text-sm font-bold uppercase tracking-wide">
                     Pilih Alat
                   </span>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1.5">
                     {RENTAL_ITEMS.map((item) => (
                       <label
                         key={item.name}
-                        className="flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 cursor-pointer hover:bg-white/10 transition-all"
+                        className="flex items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 cursor-pointer hover:bg-white/10 transition-all"
                       >
                         <span className="flex items-center gap-3">
                           <input
@@ -635,7 +649,7 @@ export default function Home() {
                             onChange={() => toggleRentalItem(item.name)}
                             className="w-4 h-4 accent-[#A9DB1B] shrink-0"
                           />
-                          <span className="text-white text-sm font-medium">{item.name}</span>
+                          <span className="text-white text-sm font-medium leading-snug">{item.name}</span>
                         </span>
                         <span className="text-[#A9DB1B] text-xs font-bold shrink-0">{item.price}</span>
                       </label>
@@ -647,7 +661,7 @@ export default function Home() {
                   href={rentalWaHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-7 sm:mt-8 self-start flex items-center gap-2 bg-[#A9DB1B] text-[#1B198F] px-7 py-3 rounded-full font-bold text-sm sm:text-base transition-all hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(169,219,27,0.35)] active:scale-[0.98]"
+                  className="mt-6 self-start flex items-center gap-2 bg-[#A9DB1B] text-[#1B198F] px-7 py-3 rounded-full font-bold text-sm sm:text-base transition-all hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(169,219,27,0.35)] active:scale-[0.98]"
                 >
                   Hubungi Admin untuk Sewa
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-7-7 7 7-7 7" /></svg>
