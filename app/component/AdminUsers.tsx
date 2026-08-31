@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { formatDate } from "@/lib/types";
+import {
+  GENDER_LABEL,
+  NICHE_LABEL,
+  formatDate,
+  type CreatorProfile,
+} from "@/lib/types";
 
 type User = {
   id: string;
@@ -10,6 +15,8 @@ type User = {
   created_at: string;
   last_sign_in_at: string | null;
   provider: string;
+  /** The creator's "Lengkapi Profil" record, or null while it is still empty. */
+  profile: CreatorProfile | null;
 };
 
 // Escapes one CSV field: wrap in quotes and double any quote inside, so a
@@ -23,6 +30,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
+  const [detail, setDetail] = useState<User | null>(null);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -55,7 +63,9 @@ export default function AdminUsers() {
       (u) =>
         u.name.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
-        u.id.toLowerCase().includes(q)
+        u.id.toLowerCase().includes(q) ||
+        (u.profile?.full_name.toLowerCase().includes(q) ?? false) ||
+        (u.profile?.domicile.toLowerCase().includes(q) ?? false)
     );
   }, [users, query]);
 
@@ -160,6 +170,7 @@ export default function AdminUsers() {
                 <th className="px-5 py-4 font-bold text-black/50">Provider</th>
                 <th className="px-5 py-4 font-bold text-black/50">Terdaftar</th>
                 <th className="px-5 py-4 font-bold text-black/50">Login Terakhir</th>
+                <th className="px-5 py-4 font-bold text-black/50">Aksi</th>
               </tr>
             </thead>
 
@@ -196,6 +207,15 @@ export default function AdminUsers() {
                       <span className="text-black/30">Belum pernah</span>
                     )}
                   </td>
+
+                  <td className="px-5 py-4">
+                    <button
+                      onClick={() => setDetail(user)}
+                      className="rounded-full border border-[#1B198F]/20 px-4 py-2 text-xs font-bold text-[#1B198F] transition-all hover:bg-[#1B198F]/5 active:scale-95"
+                    >
+                      Detail
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -210,6 +230,91 @@ export default function AdminUsers() {
           </div>
         )}
       </div>
+
+      {/* ── Creator detail dialog ── */}
+      {detail && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-5"
+          onClick={() => setDetail(null)}
+        >
+          <div
+            className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-t-[28px] sm:rounded-[28px] p-6 sm:p-8 flex flex-col gap-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={detail.profile?.avatar_url ?? ""}
+                alt={detail.name}
+                className="w-16 h-16 rounded-full border-2 border-[#A9DB1B] object-cover bg-black/5 shrink-0"
+              />
+              <div className="min-w-0">
+                <h3 className="text-lg font-black text-[#1B198F] break-words">
+                  {detail.profile?.full_name || detail.name}
+                </h3>
+                <p className="text-sm text-black/50 break-all">{detail.email}</p>
+                <code className="mt-1 inline-block rounded-lg bg-black/5 px-2 py-1 text-xs text-black/50 break-all">
+                  {detail.id}
+                </code>
+              </div>
+            </div>
+
+            {detail.profile ? (
+              <dl className="grid sm:grid-cols-2 gap-4">
+                <Field label="Instagram" value={detail.profile.instagram ? `@${detail.profile.instagram}` : "-"} />
+                <Field label="TikTok" value={detail.profile.tiktok ? `@${detail.profile.tiktok}` : "-"} />
+                <Field label="WhatsApp" value={detail.profile.whatsapp} />
+                <Field label="Usia" value={`${detail.profile.age} tahun`} />
+                <Field label="Jenis Kelamin" value={GENDER_LABEL[detail.profile.gender]} />
+                <Field label="Domisili" value={detail.profile.domicile} />
+                <Field
+                  label="Rata-rata View"
+                  value={detail.profile.avg_views.toLocaleString("id-ID")}
+                />
+                <Field label="Provider" value={detail.provider} />
+                <div className="sm:col-span-2">
+                  <dt className="text-xs font-bold uppercase tracking-wide text-black/40">
+                    Niche Konten
+                  </dt>
+                  <dd className="mt-2 flex flex-wrap gap-2">
+                    {detail.profile.niches.map((n) => (
+                      <span
+                        key={n}
+                        className="rounded-full bg-[#1B198F]/5 px-3 py-1 text-xs font-semibold text-[#1B198F]"
+                      >
+                        {NICHE_LABEL[n]}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+                <Field label="Terdaftar" value={formatDate(detail.created_at)} />
+                <Field label="Profil Diperbarui" value={formatDate(detail.profile.updated_at)} />
+              </dl>
+            ) : (
+              <div className="rounded-2xl border border-black/10 bg-black/[0.02] p-5 text-sm text-black/50">
+                Creator ini belum mengisi Lengkapi Profil, jadi belum bisa klaim campaign.
+              </div>
+            )}
+
+            <button
+              onClick={() => setDetail(null)}
+              className="rounded-full bg-[#1B198F] px-5 py-3 text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// One label/value pair in the detail dialog.
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs font-bold uppercase tracking-wide text-black/40">{label}</dt>
+      <dd className="mt-1 text-sm font-semibold text-black/75 break-words">{value}</dd>
     </div>
   );
 }

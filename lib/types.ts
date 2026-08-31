@@ -58,6 +58,82 @@ export type Submission = {
   created_at: string;
 };
 
+export type Gender = "laki-laki" | "perempuan";
+
+export type Niche =
+  | "fnb"
+  | "fashion-beauty"
+  | "travel"
+  | "tech-gaming"
+  | "edukasi"
+  | "hiburan"
+  | "olahraga"
+  | "lifestyle";
+
+// Filled by the creator on the "Lengkapi Profil" tab, one row per auth user.
+export type CreatorProfile = {
+  user_id: string;
+  user_email: string | null;
+  full_name: string;
+  instagram: string | null; // username, without the leading @
+  tiktok: string | null;    // username, without the leading @
+  whatsapp: string;
+  age: number;
+  gender: Gender;
+  niches: Niche[];
+  domicile: string;
+  avg_views: number;
+  avatar_path: string | null; // path inside the public `avatars` bucket
+  avatar_seed: string | null; // chosen Voxel Bot variant; null = seeded with the user id
+  avatar_url: string;         // resolved by the API: uploaded photo, or the Voxel Bot fallback
+  created_at: string;
+  updated_at: string;
+};
+
+// Every creator gets a stable DiceBear "Voxel Bot" until they upload their own
+// photo. Seeding keeps the same bot across devices and sessions; the creator can
+// swap to another variant by picking a different seed (see avatarSeedFor).
+export function voxelAvatar(seed: string): string {
+  return `https://api.dicebear.com/10.x/voxel-bot/svg?seed=${encodeURIComponent(seed)}`;
+}
+
+// How many bot variants the picker shows at a time.
+export const AVATAR_VARIANTS_PER_PAGE = 12;
+
+// Variant seeds are derived from the user id, so every creator sees their own
+// set of bots and the choice stays reproducible from the stored seed alone.
+export function avatarSeedFor(userId: string, index: number): string {
+  return index === 0 ? userId : `${userId}-v${index}`;
+}
+
+// Seeds go into a URL and an <img src>, so only this safe charset is accepted.
+export function isValidAvatarSeed(seed: string): boolean {
+  return /^[A-Za-z0-9_-]{1,64}$/.test(seed);
+}
+
+// The `avatars` bucket is public, so a stored path resolves to a URL with no
+// signing. Shared so the browser can show a just-uploaded photo before the
+// profile row exists, using the same URL the API will hand back later.
+export function avatarPublicUrl(path: string): string {
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
+}
+
+// A photo path or a bot seed — the two ways an avatar can be set. Only one is
+// ever in effect: choosing a bot clears the photo.
+export type AvatarChange = { avatar_path: string } | { avatar_seed: string };
+
+// The one place the avatar precedence lives: uploaded photo, then the chosen
+// bot, then a bot seeded with the user id. Used by the profile API and by the
+// admin user list.
+export function resolveAvatarUrl(
+  row: { avatar_path?: string | null; avatar_seed?: string | null } | null,
+  userId: string
+): string {
+  return row?.avatar_path
+    ? avatarPublicUrl(row.avatar_path)
+    : voxelAvatar(row?.avatar_seed || userId);
+}
+
 export const PLATFORM_LABEL: Record<Platform, string> = {
   instagram: "Instagram",
   tiktok: "TikTok",
@@ -79,6 +155,35 @@ export const SECTORS: Sector[] = [
   "tourism",
   "retail",
   "services-lifestyle",
+];
+
+export const GENDER_LABEL: Record<Gender, string> = {
+  "laki-laki": "Laki-laki",
+  perempuan: "Perempuan",
+};
+
+export const GENDERS: Gender[] = ["laki-laki", "perempuan"];
+
+export const NICHE_LABEL: Record<Niche, string> = {
+  fnb: "Food & Beverage",
+  "fashion-beauty": "Fashion & Beauty",
+  travel: "Travel",
+  "tech-gaming": "Tech & Gaming",
+  edukasi: "Edukasi",
+  hiburan: "Hiburan",
+  olahraga: "Olahraga",
+  lifestyle: "Lifestyle",
+};
+
+export const NICHES: Niche[] = [
+  "fnb",
+  "fashion-beauty",
+  "travel",
+  "tech-gaming",
+  "edukasi",
+  "hiburan",
+  "olahraga",
+  "lifestyle",
 ];
 
 export function formatRupiah(value: number | null | undefined): string {

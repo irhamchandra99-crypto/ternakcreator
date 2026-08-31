@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/adminGuard";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveAvatarUrl, type CreatorProfile } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Registered creators. This replaced the old Google Sheets export, so it
 // carries everything that sheet held (signup time, name, email, user id)
-// plus the provider and last-seen data only Supabase Auth knows.
+// plus the provider and last-seen data only Supabase Auth knows. Each row also
+// carries the creator's own "Lengkapi Profil" record when they have filled it
+// in, which is what the Detail dialog shows.
 export async function GET(req: NextRequest) {
   const denied = requireAdmin(req);
   if (denied) return denied;
@@ -37,6 +40,23 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // One query for every profile, then matched in memory — cheaper than a
+    // round trip per user, and a failure here must not hide the user list.
+    const { data: profileRows, error: profileError } = await supabase
+      .from("creator_profiles")
+      .select("*");
+
+    if (profileError) {
+      console.error("admin users: read profiles error:", profileError);
+    }
+
+    const profiles = new Map<string, CreatorProfile>(
+      (profileRows ?? []).map((row) => [
+        row.user_id as string,
+        { ...row, avatar_url: resolveAvatarUrl(row, row.user_id as string) } as CreatorProfile,
+      ])
+    );
+
     // Newest signup first — the admin cares about who just joined.
     const users = data.users
       .map((user) => ({
@@ -52,6 +72,7 @@ export async function GET(req: NextRequest) {
           user.app_metadata?.provider ||
           user.identities?.[0]?.provider ||
           "email",
+        profile: profiles.get(user.id) ?? null,
       }))
       .sort((a, b) => b.created_at.localeCompare(a.created_at));
 

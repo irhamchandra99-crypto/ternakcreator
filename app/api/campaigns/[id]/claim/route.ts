@@ -18,6 +18,21 @@ export async function POST(_req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // The profile is mandatory before any claim: brands rate the fit from it, and
+  // the client-side gate alone would be trivial to skip.
+  const { data: profile } = await supabase
+    .from("creator_profiles")
+    .select("full_name, whatsapp, niches")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!profile || !profile.full_name || !profile.whatsapp || (profile.niches?.length ?? 0) === 0) {
+    return NextResponse.json(
+      { error: "Lengkapi profil kamu dulu sebelum klaim campaign." },
+      { status: 403 }
+    );
+  }
+
   const { data: campaign } = await supabase
     .from("campaigns")
     .select("id, status")
@@ -38,7 +53,7 @@ export async function POST(_req: Request, { params }: Ctx) {
       campaign_id: id,
       user_id: user.id,
       user_email: user.email ?? null,
-      user_name: user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? null,
+      user_name: profile.full_name,
     })
     .select()
     .single();

@@ -36,6 +36,8 @@ admin creates campaign  →  creator claims it ("Klaim Campaign")
   →  creator sees status + receipt on their dashboard
 ```
 
+The Profil tab is the first stop for a new creator: `app/dashboard/page.tsx` locks the two campaign tabs (`profileLocked`) until the row exists. Before a creator can claim anything they must fill in `creator_profiles` (name, IG/TikTok handle, WhatsApp, age, gender, niches, domicile, average views). `app/api/campaigns/[id]/claim/route.ts` enforces that server-side; the dashboard's `ProfileGate` is only the friendly half. Until a photo is uploaded the avatar is a DiceBear "Voxel Bot" SVG (`voxelAvatar` in `lib/types.ts`), seeded with `avatar_seed` or, while that is null, the user id. `AvatarPicker` lets the creator pick another bot variant (`avatarSeedFor(userId, index)`) or upload a real photo; choosing a bot clears `avatar_path`, so only one of the two is ever in effect. It never talks to the API itself — it hands an `AvatarChange` to `onPick`, because before the first save there is no row to `PATCH`: `DashboardProfile` holds the choice in `pendingAvatar` and `POST /api/profile` writes it with the rest of the profile. `resolveAvatarUrl` in `lib/types.ts` is the single place that precedence lives. Domisili is a suggestion dropdown over all 514 kota/kabupaten in `lib/regions.ts` (`CityCombobox`), but still accepts free text so pre-existing profiles keep saving.
+
 The tables mirror that chain: `campaigns` → `campaign_claims` → `submissions`. Schema lives in `supabase/schema.sql` (idempotent — run it in the Supabase SQL editor).
 
 ## Two independent auth systems
@@ -63,6 +65,7 @@ Rules that follow from this:
 | `brand-logos` | public | campaign brand marks |
 | `analytics` | private, RLS-scoped to `<uid>/` | creator audience screenshots |
 | `payout-proofs` | private | transfer receipts, served via 1-hour signed URLs (`SIGNED_URL_TTL`) |
+| `avatars` | public | creator profile photos, WebP-encoded in the browser |
 | `app-data` | private | JSON records for `lib/store.ts` |
 
 Creators upload analytics screenshots **straight from the browser** into `analytics/<their-uid>/`. `app/api/submissions/route.ts` only records the path, and re-checks the `<uid>/` prefix so a mismatched path cannot be filed against someone else's folder.
@@ -74,11 +77,11 @@ Creators upload analytics screenshots **straight from the browser** into `analyt
 - `lib/types.ts` — shared row shapes (`Campaign`, `Claim`, `Submission`) plus `formatRupiah` / `formatDate`. Used by both halves; keep it the single source for these.
 - `lib/store.ts` — small JSON key/value store with four backends picked per call by `pickBackend()`: Supabase Storage → Netlify Blobs → Vercel Blob → local `.data/` filesystem. Supabase wins whenever it is configured, because the filesystem fallback is read-only in a serverless runtime and used to fail in production while dev looked fine. Backs feedback records and rate-limit counters.
 - `lib/ratelimit.ts` — sliding window over one counter record per key. Writes are best-effort and swallowed: a failed counter must never turn a "wrong password" into a 500.
-- `app/component/AdminUsers.tsx` — the registered-creator list, backed by `supabase.auth.admin.listUsers()`. This replaced an earlier Google Sheets export; keep the CSV download in step with the table's columns so that workflow still has a home.
+- `app/component/AdminUsers.tsx` — the registered-creator list, backed by `supabase.auth.admin.listUsers()` plus one `creator_profiles` read matched in memory, which is what the row's **Detail** dialog shows. This replaced an earlier Google Sheets export; keep the CSV download in step with the table's columns so that workflow still has a home.
 
 ### API surface
 
-`/api/campaigns` (open offers + claimed flag) · `/api/campaigns/[id]/claim` · `/api/submissions` · `/api/my/campaigns` (dashboard payload) · `/api/feedback` · `/api/admin/{login,logout,session,campaigns,submissions,feedback,users}`.
+`/api/profile` (GET/POST the creator's own profile, PATCH the avatar path) · `/api/campaigns` (open offers + claimed flag) · `/api/campaigns/[id]/claim` · `/api/submissions` · `/api/my/campaigns` (dashboard payload) · `/api/feedback` · `/api/admin/{login,logout,session,campaigns,submissions,feedback,users}`.
 
 Route handlers set `export const runtime = "nodejs"` and `export const dynamic = "force-dynamic"` — keep both when adding routes: `lib/auth.ts` needs Node `crypto`, and these responses must never be cached.
 

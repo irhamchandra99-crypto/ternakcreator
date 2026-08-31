@@ -47,22 +47,22 @@ export default function LoginPage() {
         });
         
         if (signUpError) {
+          const msg = signUpError.message.toLowerCase();
           setError(
-            signUpError.message.includes("already registered")
-              ? "Email sudah terdaftar."
+            msg.includes("already registered") || msg.includes("already been registered")
+              ? "Email Anda telah terdaftar, silakan Login."
               : signUpError.message
           );
           return;
         }
-        
-        
-        
-        // If email confirmation is on, there's no session yet.
-        if (!data.session) {
-          setSuccess("Cek email kamu untuk konfirmasi akun.");
-        } else {
-          window.location.href = "/dashboard";
+
+        // With email-enumeration protection on, Supabase returns no error for an
+        // existing address - it returns a decoy user with an empty identities array.
+        if (data.user && (data.user.identities?.length ?? 0) === 0) {
+          setError("Email Anda telah terdaftar, silakan Login.");
+          return;
         }
+
         // If email confirmation is on, there's no session yet.
         if (!data.session) {
           setSuccess("Cek email kamu untuk konfirmasi akun.");
