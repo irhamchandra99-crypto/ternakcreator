@@ -806,7 +806,7 @@ export default function Home() {
                     </ul>
                   </div>
 
-                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSdFJyxcZ1cudvbxsje1iHcGH7me8rlAdqQGHi4j3UnnKtEupA/viewform" target="_blank" rel="noopener noreferrer" className="block w-full group relative overflow-hidden bg-[#1B198F] text-white py-4 rounded-2xl font-bold text-base sm:text-lg transition-all hover:shadow-[0_20px_40px_rgba(27,25,143,0.3)] hover:-translate-y-1 active:scale-[0.98] text-center">
+                  <a href="/login" className="block w-full group relative overflow-hidden bg-[#1B198F] text-white py-4 rounded-2xl font-bold text-base sm:text-lg transition-all hover:shadow-[0_20px_40px_rgba(27,25,143,0.3)] hover:-translate-y-1 active:scale-[0.98] text-center">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                     Dapatkan Akses Sekarang
                   </a>
