@@ -263,6 +263,12 @@ alter table public.creator_profiles
   add constraint creator_profiles_avatar_seed_check
   check (avatar_seed is null or avatar_seed ~ '^[A-Za-z0-9_-]{1,64}$');
 
+-- WhatsApp community channel. Null means the creator has not confirmed joining,
+-- so the dashboard keeps prompting them on every visit; the "Gabung" button
+-- stamps it once and the prompt never comes back.
+alter table public.creator_profiles
+  add column if not exists community_joined_at timestamptz;
+
 -- ═══════════════════════════════════════════════════════════════════
 -- avatars  public — creator profile photos, converted to WebP in the browser
 -- ═══════════════════════════════════════════════════════════════════

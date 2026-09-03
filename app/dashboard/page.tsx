@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import DashboardOffers from "@/app/component/DashboardOffers";
 import DashboardMyCampaigns from "@/app/component/DashboardMyCampaigns";
 import DashboardProfile from "@/app/component/DashboardProfile";
+import CommunityPrompt from "@/app/component/CommunityPrompt";
 import { voxelAvatar, type CreatorProfile } from "@/lib/types";
 
 type Account = { name: string; email: string; avatarUrl: string };
@@ -19,6 +20,10 @@ export default function DashboardPage() {
   const [profileChecked, setProfileChecked] = useState(false);
   // Bumped after a claim so the "Campaign Saya" tab refetches.
   const [reloadKey, setReloadKey] = useState(0);
+  // The WhatsApp-community prompt. It opens once the profile exists and stays a
+  // per-visit thing: "Nanti saja" only closes it here, so the next visit asks
+  // again; confirming writes community_joined_at and retires it for good.
+  const [communityOpen, setCommunityOpen] = useState(false);
 
   const loadMe = useCallback(async () => {
     const supabase = createClient();
@@ -51,6 +56,7 @@ export default function DashboardPage() {
         setAccount((a) => (a ? { ...a, avatarUrl: item.avatar_url, name: item.full_name } : a));
       }
       if (!item) setTab("profile");
+      if (item && !item.community_joined_at) setCommunityOpen(true);
     } catch {
       // A failed check just leaves the gate closed; the Profil tab still works.
     } finally {
@@ -62,6 +68,20 @@ export default function DashboardPage() {
     // Fetch-on-mount auth + profile check; redirects when unauthenticated.
     loadMe();
   }, [loadMe]);
+
+  // "Saya Sudah Gabung": stamps community_joined_at so the prompt is retired on
+  // every device. A failed write leaves the dialog open with its own error.
+  const joinCommunity = useCallback(async () => {
+    const res = await fetch("/api/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ community_joined: true }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "Gagal menyimpan.");
+    setProfile(data.item ?? null);
+    setCommunityOpen(false);
+  }, []);
 
   const logout = async () => {
     const supabase = createClient();
@@ -166,6 +186,9 @@ export default function DashboardPage() {
               setAccount((a) =>
                 a ? { ...a, name: saved.full_name, avatarUrl: saved.avatar_url } : a
               );
+              // First stop for a new creator: the community prompt follows the
+              // very first save, before they go looking for campaigns.
+              if (!saved.community_joined_at) setCommunityOpen(true);
             }}
             onAvatarChanged={(url) =>
               setAccount((a) => (a ? { ...a, avatarUrl: url } : a))
@@ -185,6 +208,22 @@ export default function DashboardPage() {
           <DashboardMyCampaigns reloadKey={reloadKey} />
         )}
       </div>
+
+      {/* Stays reachable after "Nanti saja", so the creator can still join. */}
+      {profile && !profile.community_joined_at && !communityOpen && (
+        <button
+          type="button"
+          onClick={() => setCommunityOpen(true)}
+          className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-2xl border border-[#A9DB1B]/40 bg-[#1B198F] hover:bg-[#26249e] px-4 py-3 text-sm font-semibold shadow-xl transition-all"
+        >
+          <span className="w-2 h-2 rounded-full bg-[#A9DB1B] animate-pulse" />
+          Gabung komunitas WhatsApp
+        </button>
+      )}
+
+      {profile && !profile.community_joined_at && communityOpen && (
+        <CommunityPrompt onJoined={joinCommunity} onDismiss={() => setCommunityOpen(false)} />
+      )}
     </main>
   );
 }

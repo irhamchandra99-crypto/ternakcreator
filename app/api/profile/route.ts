@@ -186,9 +186,10 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ item: withAvatarUrl(data, user.id) });
 }
 
-// Avatar-only update for a profile that already exists, either an uploaded photo
-// or a Voxel Bot variant. Before the first save there is no row to patch, so the
-// browser holds the choice and POST writes it with the rest of the profile.
+// Small updates on a profile that already exists: the avatar (an uploaded photo
+// or a Voxel Bot variant), or the WhatsApp-community confirmation. Before the
+// first save there is no row to patch, so the browser holds an avatar choice and
+// POST writes it with the rest of the profile.
 export async function PATCH(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -206,17 +207,25 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Format tidak valid." }, { status: 400 });
   }
 
+  // "Gabung" on the community prompt: stamped once, and only ever set — a stray
+  // false must not reopen a prompt the creator already dismissed for good.
+  const joinsCommunity = body.community_joined === true;
+
   const avatar = parseAvatarChange(body, user.id);
-  if (!avatar) {
-    return NextResponse.json({ error: "Foto profil tidak valid." }, { status: 400 });
+  if (!avatar && !joinsCommunity) {
+    return NextResponse.json({ error: "Tidak ada perubahan yang valid." }, { status: 400 });
   }
-  if ("error" in avatar) {
+  if (avatar && "error" in avatar) {
     return NextResponse.json({ error: avatar.error }, { status: 400 });
   }
 
   const { data, error } = await supabase
     .from("creator_profiles")
-    .update({ ...avatar.patch, updated_at: new Date().toISOString() })
+    .update({
+      ...(avatar && !("error" in avatar) ? avatar.patch : {}),
+      ...(joinsCommunity ? { community_joined_at: new Date().toISOString() } : {}),
+      updated_at: new Date().toISOString(),
+    })
     .eq("user_id", user.id)
     .select()
     .maybeSingle();

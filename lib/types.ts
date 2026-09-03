@@ -86,9 +86,15 @@ export type CreatorProfile = {
   avatar_path: string | null; // path inside the public `avatars` bucket
   avatar_seed: string | null; // chosen Voxel Bot variant; null = seeded with the user id
   avatar_url: string;         // resolved by the API: uploaded photo, or the Voxel Bot fallback
+  community_joined_at: string | null; // null = still gets the "gabung komunitas" prompt
   created_at: string;
   updated_at: string;
 };
+
+// WhatsApp channel every creator is asked to join right after filling in their
+// profile. The dashboard keeps prompting until they confirm with "Gabung".
+export const COMMUNITY_URL =
+  "https://whatsapp.com/channel/0029VbCQ9bxCnA80FBHoFM2y";
 
 // Every creator gets a stable DiceBear "Voxel Bot" until they upload their own
 // photo. Seeding keeps the same bot across devices and sessions; the creator can
