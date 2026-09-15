@@ -195,16 +195,13 @@ export default function AdminPayouts({ onChanged }: { onChanged?: () => void }) 
               </div>
 
               {s.analytics_url && (
-                <a href={s.analytics_url} target="_blank" rel="noopener noreferrer" className="block">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={s.analytics_url}
-                    alt="Screenshot analytics"
-                    className="max-h-64 rounded-2xl border border-[#1B198F]/10 object-contain bg-[#FAFAFA]"
-                  />
-                  <span className="text-[#1B198F]/40 text-xs">
-                    Screenshot analytics — klik untuk perbesar
-                  </span>
+                <a
+                  href={s.analytics_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="self-start inline-flex items-center rounded-full bg-[#1B198F] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#1B198F]/90 transition-colors"
+                >
+                  Buka Insight
                 </a>
               )}
 
