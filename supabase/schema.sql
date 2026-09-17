@@ -88,6 +88,24 @@ begin
     check (sector in ('fnb', 'event-entertainment', 'tourism', 'retail', 'services-lifestyle'));
 end $$;
 
+-- ── Open Visit Store ────────────────────────────────────────────────
+-- The brand invites creators to shoot at the outlet. `visit_quota` is how many
+-- people they will host (null = no fixed number) and `visit_note` holds the
+-- details the creator needs: alamat, jam kunjungan, apa yang ditanggung.
+alter table public.campaigns add column if not exists visit_store boolean not null default false;
+alter table public.campaigns add column if not exists visit_quota int;
+alter table public.campaigns add column if not exists visit_note text;
+
+do $$
+begin
+  if exists (select 1 from pg_constraint where conname = 'campaigns_visit_quota_check') then
+    alter table public.campaigns drop constraint campaigns_visit_quota_check;
+  end if;
+  alter table public.campaigns
+    add constraint campaigns_visit_quota_check
+    check (visit_quota is null or visit_quota between 1 and 1000);
+end $$;
+
 -- ── Claims ("Klaim Campaign") ───────────────────────────────────────
 create table if not exists public.campaign_claims (
   id          uuid primary key default gen_random_uuid(),

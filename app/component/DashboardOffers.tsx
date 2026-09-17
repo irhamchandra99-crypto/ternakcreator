@@ -1,10 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PLATFORM_LABEL, SECTOR_LABEL, SECTORS, type Campaign, type Sector } from "@/lib/types";
+import {
+  PLATFORM_LABEL,
+  SECTOR_LABEL,
+  SECTORS,
+  sectorMatchesNiches,
+  visitQuotaLabel,
+  type Campaign,
+  type Niche,
+  type Sector,
+} from "@/lib/types";
 
 type Offer = Campaign & { claimed: boolean };
 type SortOrder = "newest" | "oldest";
+// Which slice of the open campaigns the creator is looking at: only the ones
+// that fit the niches they picked on their profile, or everything.
+type Scope = "niche" | "all";
 
 const PLATFORM_STYLE: Record<string, string> = {
   instagram: "bg-gradient-to-r from-[#F58529] to-[#DD2A7B] text-white",
@@ -14,7 +26,13 @@ const PLATFORM_STYLE: Record<string, string> = {
 const SELECT_FIELD =
   "rounded-full border border-white/15 bg-white/[0.07] px-4 py-2 text-sm font-semibold text-white outline-none focus:border-[#A9DB1B] focus:ring-2 focus:ring-[#A9DB1B]/30 transition-all";
 
-export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }) {
+export default function DashboardOffers({
+  onClaimed,
+  niches,
+}: {
+  onClaimed: () => void;
+  niches: Niche[];
+}) {
   const [items, setItems] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<Offer | null>(null);
@@ -22,6 +40,9 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
   const [error, setError] = useState("");
   const [sectorFilter, setSectorFilter] = useState<Sector | "all">("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  // Offers matching the creator's niches come first by default; the toggle
+  // opens it back up to every campaign.
+  const [scope, setScope] = useState<Scope>("niche");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -60,14 +81,27 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
     }
   };
 
+  // A profile with no niches on file has nothing to narrow by: the toggle stays
+  // hidden and every campaign shows.
+  const hasNiches = niches.length > 0;
+  const nicheOnly = scope === "niche" && hasNiches;
+
+  const nicheCount = useMemo(
+    () => items.filter((c) => sectorMatchesNiches(c.sector, niches)).length,
+    [items, niches]
+  );
+
   const visibleItems = useMemo(() => {
-    const filtered =
-      sectorFilter === "all" ? items : items.filter((c) => c.sector === sectorFilter);
+    const filtered = items.filter(
+      (c) =>
+        (sectorFilter === "all" || c.sector === sectorFilter) &&
+        (!nicheOnly || sectorMatchesNiches(c.sector, niches))
+    );
     return [...filtered].sort((a, b) => {
       const diff = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       return sortOrder === "newest" ? -diff : diff;
     });
-  }, [items, sectorFilter, sortOrder]);
+  }, [items, sectorFilter, sortOrder, nicheOnly, niches]);
 
   if (loading) {
     return <p className="text-white/50 text-sm animate-pulse">Memuat penawaran...</p>;
@@ -84,6 +118,30 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
 
       {items.length > 0 && (
         <div className="flex flex-wrap items-center gap-3">
+          {hasNiches && (
+            <div className="flex rounded-full border border-white/15 bg-white/[0.07] p-1">
+              {(
+                [
+                  { key: "niche", label: `Sesuai Niche Saya (${nicheCount})` },
+                  { key: "all", label: `Semua Campaign (${items.length})` },
+                ] as const
+              ).map((s) => (
+                <button
+                  key={s.key}
+                  type="button"
+                  onClick={() => setScope(s.key)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                    scope === s.key
+                      ? "bg-[#A9DB1B] text-[#1B198F]"
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           <select
             className={SELECT_FIELD}
             value={sectorFilter}
@@ -117,8 +175,21 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
           Belum ada penawaran campaign. Cek lagi nanti ya!
         </div>
       ) : visibleItems.length === 0 ? (
-        <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center text-white/40 font-medium">
-          Tidak ada campaign di sektor ini.
+        <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center flex flex-col items-center gap-4">
+          <p className="text-white/40 font-medium">
+            {nicheOnly
+              ? "Belum ada campaign yang cocok dengan niche kamu."
+              : "Tidak ada campaign di sektor ini."}
+          </p>
+          {nicheOnly && (
+            <button
+              type="button"
+              onClick={() => setScope("all")}
+              className="rounded-2xl bg-[#A9DB1B] hover:bg-[#c8f020] text-[#1B198F] font-bold px-6 py-3 text-sm transition-all"
+            >
+              Lihat Semua Campaign
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -164,6 +235,11 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white/70">
                   {SECTOR_LABEL[c.sector]}
                 </span>
+                {c.visit_store && (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-white text-[#1B198F]">
+                    🏪 Visit Store · {visitQuotaLabel(c.visit_quota)}
+                  </span>
+                )}
                 {c.reward_note && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#A9DB1B]/20 text-[#A9DB1B]">
                     {c.reward_note}
@@ -243,6 +319,22 @@ export default function DashboardOffers({ onClaimed }: { onClaimed: () => void }
                 {open.brief}
               </p>
             </div>
+
+            {open.visit_store && (
+              <div className="rounded-2xl bg-white/10 border border-white/20 p-4">
+                <h4 className="text-white text-xs font-bold uppercase tracking-wide mb-2">
+                  🏪 Open Visit Store
+                </h4>
+                <p className="text-white text-sm font-semibold">
+                  Brand terima {visitQuotaLabel(open.visit_quota)} untuk datang ke toko.
+                </p>
+                {open.visit_note && (
+                  <p className="mt-2 text-white/70 text-sm leading-relaxed whitespace-pre-wrap break-words">
+                    {open.visit_note}
+                  </p>
+                )}
+              </div>
+            )}
 
             {open.brief_pdf_url && (
               <a

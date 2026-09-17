@@ -61,6 +61,9 @@ export async function POST(req: NextRequest) {
   const sector = String(form.get("sector") ?? "").trim();
   const brief = String(form.get("brief") ?? "").trim();
   const rewardNote = String(form.get("reward_note") ?? "").trim().slice(0, 160);
+  const visitStore = String(form.get("visit_store") ?? "") === "true";
+  const visitQuotaRaw = String(form.get("visit_quota") ?? "").trim();
+  const visitNote = String(form.get("visit_note") ?? "").trim().slice(0, 500);
   const logo = form.get("logo");
   const briefPdf = form.get("brief_pdf");
 
@@ -84,6 +87,18 @@ export async function POST(req: NextRequest) {
   }
   if (brief.length < 10) {
     return NextResponse.json({ error: "Brief terlalu pendek." }, { status: 400 });
+  }
+
+  // Only meaningful when the visit is on; an empty number means "kuota fleksibel".
+  let visitQuota: number | null = null;
+  if (visitStore && visitQuotaRaw) {
+    visitQuota = Number.parseInt(visitQuotaRaw, 10);
+    if (!Number.isInteger(visitQuota) || visitQuota < 1 || visitQuota > 1000) {
+      return NextResponse.json(
+        { error: "Jumlah orang untuk visit store harus antara 1 dan 1000." },
+        { status: 400 }
+      );
+    }
   }
 
   const supabase = createAdminClient();
@@ -138,6 +153,9 @@ export async function POST(req: NextRequest) {
       brief,
       brief_pdf: briefPdfPath,
       reward_note: rewardNote || null,
+      visit_store: visitStore,
+      visit_quota: visitStore ? visitQuota : null,
+      visit_note: visitStore ? visitNote || null : null,
     })
     .select()
     .single();

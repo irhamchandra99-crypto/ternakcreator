@@ -198,6 +198,7 @@ export default function DashboardPage() {
         {tab !== "profile" && profileChecked && !profile && <ProfileGate onGo={() => setTab("profile")} />}
         {tab === "offers" && (!profileChecked || profile) && (
           <DashboardOffers
+            niches={profile?.niches ?? []}
             onClaimed={() => {
               setReloadKey((k) => k + 1);
               setTab("mine");

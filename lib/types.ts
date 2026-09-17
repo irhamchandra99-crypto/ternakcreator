@@ -23,6 +23,13 @@ export type Campaign = {
   brief_pdf: string | null; // storage path
   brief_pdf_url?: string | null; // resolved public URL
   reward_note: string | null;
+  // "Open Visit Store": the brand invites creators to come to the outlet.
+  // Only meaningful while visit_store is true — visit_quota is how many people
+  // may come (null = no fixed quota) and visit_note carries the details the
+  // creator needs (alamat, jam buka, apa yang ditanggung).
+  visit_store: boolean;
+  visit_quota: number | null;
+  visit_note: string | null;
   status: CampaignStatus;
   created_at: string;
 };
@@ -191,6 +198,32 @@ export const NICHES: Niche[] = [
   "olahraga",
   "lifestyle",
 ];
+
+// How many creators the brand will host, phrased for the badge. A campaign
+// with visit_store on but no number has an open quota.
+export function visitQuotaLabel(quota: number | null | undefined): string {
+  return quota && quota > 0 ? `${quota} orang` : "kuota fleksibel";
+}
+
+// Campaigns are tagged with a business `sector`, creators pick content
+// `niches` — two different vocabularies. This is the bridge between them, used
+// by the dashboard to show a creator the offers that fit what they post about.
+// A sector maps to every niche whose content plausibly sells for that sector.
+export const SECTOR_NICHES: Record<Sector, Niche[]> = {
+  fnb: ["fnb", "lifestyle"],
+  "event-entertainment": ["hiburan", "olahraga", "lifestyle"],
+  tourism: ["travel", "lifestyle"],
+  retail: ["fashion-beauty", "tech-gaming", "lifestyle"],
+  "services-lifestyle": ["lifestyle", "edukasi", "fashion-beauty", "tech-gaming"],
+};
+
+// Does a campaign sector fit any of the creator's niches? An empty niche list
+// matches everything — there is nothing to narrow by.
+export function sectorMatchesNiches(sector: Sector, niches: Niche[]): boolean {
+  if (niches.length === 0) return true;
+  const fit = SECTOR_NICHES[sector] ?? [];
+  return niches.some((n) => fit.includes(n));
+}
 
 export function formatRupiah(value: number | null | undefined): string {
   if (value == null) return "-";

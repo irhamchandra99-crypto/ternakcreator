@@ -6,6 +6,7 @@ import {
   PLATFORM_LABEL,
   formatDate,
   formatRupiah,
+  visitQuotaLabel,
   type Campaign,
   type Submission,
 } from "@/lib/types";
@@ -157,6 +158,19 @@ function MyCampaignCard({
           <p className="mt-3 text-[#A9DB1B] text-sm font-semibold">💰 {campaign.reward_note}</p>
         )}
       </div>
+
+      {campaign.visit_store && (
+        <div className="rounded-2xl bg-white/10 border border-white/20 p-4">
+          <p className="text-white text-sm font-bold">
+            🏪 Open Visit Store — {visitQuotaLabel(campaign.visit_quota)}
+          </p>
+          {campaign.visit_note && (
+            <p className="mt-2 text-white/70 text-sm leading-relaxed whitespace-pre-wrap break-words">
+              {campaign.visit_note}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Submission status */}
       {submission?.status === "pending" && (

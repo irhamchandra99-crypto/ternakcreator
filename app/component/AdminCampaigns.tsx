@@ -7,6 +7,7 @@ import {
   SECTOR_LABEL,
   SECTORS,
   formatDate,
+  visitQuotaLabel,
   type Campaign,
   type Platform,
   type Sector,
@@ -26,6 +27,10 @@ export default function AdminCampaigns() {
   const [sector, setSector] = useState<Sector>("fnb");
   const [brief, setBrief] = useState("");
   const [rewardNote, setRewardNote] = useState("");
+  // "Open Visit Store" — off by default; the number and note only travel when on.
+  const [visitStore, setVisitStore] = useState(false);
+  const [visitQuota, setVisitQuota] = useState("");
+  const [visitNote, setVisitNote] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
   const [briefPdf, setBriefPdf] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -68,6 +73,9 @@ export default function AdminCampaigns() {
     form.set("sector", sector);
     form.set("brief", brief);
     form.set("reward_note", rewardNote);
+    form.set("visit_store", String(visitStore));
+    form.set("visit_quota", visitStore ? visitQuota : "");
+    form.set("visit_note", visitStore ? visitNote : "");
     if (logo) form.set("logo", logo);
     if (briefPdf) form.set("brief_pdf", briefPdf);
 
@@ -84,6 +92,9 @@ export default function AdminCampaigns() {
       setSector("fnb");
       setBrief("");
       setRewardNote("");
+      setVisitStore(false);
+      setVisitQuota("");
+      setVisitNote("");
       setLogo(null);
       setBriefPdf(null);
       setSuccess("Campaign berhasil dipublikasikan.");
@@ -205,6 +216,54 @@ export default function AdminCampaigns() {
               placeholder="Rp50.000 per 10rb views"
             />
           </div>
+        </div>
+
+        {/* ── Open Visit Store ── */}
+        <div className="rounded-2xl border border-[#1B198F]/15 bg-[#FAFAFA] p-4 flex flex-col gap-4">
+          <label className="flex items-center gap-2 text-sm font-bold text-[#1B198F] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={visitStore}
+              onChange={(e) => setVisitStore(e.target.checked)}
+              className="w-4 h-4 accent-[#1B198F]"
+            />
+            Open Visit Store
+          </label>
+          <p className="-mt-2 text-[#1B198F]/50 text-xs">
+            Centang kalau creator boleh datang langsung ke toko/outlet brand.
+          </p>
+
+          {visitStore && (
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="c-visit-quota" className="text-[#1B198F]/70 text-sm font-semibold">
+                  Berapa Orang{" "}
+                  <span className="font-normal text-[#1B198F]/40">(kosongkan = fleksibel)</span>
+                </label>
+                <input
+                  id="c-visit-quota"
+                  inputMode="numeric"
+                  className={FIELD}
+                  value={visitQuota}
+                  onChange={(e) => setVisitQuota(e.target.value.replace(/[^\d]/g, "").slice(0, 4))}
+                  placeholder="5"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="c-visit-note" className="text-[#1B198F]/70 text-sm font-semibold">
+                  Note Visit <span className="font-normal text-[#1B198F]/40">(opsional)</span>
+                </label>
+                <textarea
+                  id="c-visit-note"
+                  className={`${FIELD} min-h-20 resize-y`}
+                  value={visitNote}
+                  onChange={(e) => setVisitNote(e.target.value.slice(0, 500))}
+                  placeholder="Alamat, jam kunjungan, menu yang ditanggung, WA yang dihubungi..."
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -339,7 +398,18 @@ export default function AdminCampaigns() {
                     {c.reward_note}
                   </span>
                 )}
+                {c.visit_store && (
+                  <span className="px-2.5 py-1 rounded-full bg-[#1B198F] text-white font-semibold">
+                    🏪 Visit Store · {visitQuotaLabel(c.visit_quota)}
+                  </span>
+                )}
               </div>
+
+              {c.visit_store && c.visit_note && (
+                <p className="text-[#1B198F]/60 text-xs leading-relaxed whitespace-pre-wrap break-words">
+                  <span className="font-semibold">Note visit:</span> {c.visit_note}
+                </p>
+              )}
 
               <p className="text-[#1B198F]/70 text-sm leading-relaxed whitespace-pre-wrap break-words line-clamp-4">
                 {c.brief}
