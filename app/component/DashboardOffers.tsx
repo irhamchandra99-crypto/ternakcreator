@@ -4,16 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   PLATFORM_LABEL,
   SECTOR_LABEL,
-  SECTORS,
   sectorMatchesNiches,
   visitQuotaLabel,
   type Campaign,
   type Niche,
-  type Sector,
 } from "@/lib/types";
 
 type Offer = Campaign & { claimed: boolean };
-type SortOrder = "newest" | "oldest";
 // Which slice of the open campaigns the creator is looking at: only the ones
 // that fit the niches they picked on their profile, or everything.
 type Scope = "niche" | "all";
@@ -22,9 +19,6 @@ const PLATFORM_STYLE: Record<string, string> = {
   instagram: "bg-gradient-to-r from-[#F58529] to-[#DD2A7B] text-white",
   tiktok: "bg-black text-white",
 };
-
-const SELECT_FIELD =
-  "rounded-full border border-white/15 bg-white/[0.07] px-4 py-2 text-sm font-semibold text-white outline-none focus:border-[#A9DB1B] focus:ring-2 focus:ring-[#A9DB1B]/30 transition-all";
 
 export default function DashboardOffers({
   onClaimed,
@@ -38,8 +32,6 @@ export default function DashboardOffers({
   const [open, setOpen] = useState<Offer | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [error, setError] = useState("");
-  const [sectorFilter, setSectorFilter] = useState<Sector | "all">("all");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   // Offers matching the creator's niches come first by default; the toggle
   // opens it back up to every campaign.
   const [scope, setScope] = useState<Scope>("niche");
@@ -91,17 +83,16 @@ export default function DashboardOffers({
     [items, niches]
   );
 
+  // Always newest first — the sector and sort dropdowns were dropped in favour
+  // of the niche toggle on its own.
   const visibleItems = useMemo(() => {
-    const filtered = items.filter(
-      (c) =>
-        (sectorFilter === "all" || c.sector === sectorFilter) &&
-        (!nicheOnly || sectorMatchesNiches(c.sector, niches))
+    const filtered = nicheOnly
+      ? items.filter((c) => sectorMatchesNiches(c.sector, niches))
+      : items;
+    return [...filtered].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-    return [...filtered].sort((a, b) => {
-      const diff = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      return sortOrder === "newest" ? -diff : diff;
-    });
-  }, [items, sectorFilter, sortOrder, nicheOnly, niches]);
+  }, [items, nicheOnly, niches]);
 
   if (loading) {
     return <p className="text-white/50 text-sm animate-pulse">Memuat penawaran...</p>;
@@ -116,55 +107,25 @@ export default function DashboardOffers({
         </p>
       </div>
 
-      {items.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3">
-          {hasNiches && (
-            <div className="flex rounded-full border border-white/15 bg-white/[0.07] p-1">
-              {(
-                [
-                  { key: "niche", label: `Sesuai Niche Saya (${nicheCount})` },
-                  { key: "all", label: `Semua Campaign (${items.length})` },
-                ] as const
-              ).map((s) => (
-                <button
-                  key={s.key}
-                  type="button"
-                  onClick={() => setScope(s.key)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                    scope === s.key
-                      ? "bg-[#A9DB1B] text-[#1B198F]"
-                      : "text-white/60 hover:text-white"
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          <select
-            className={SELECT_FIELD}
-            value={sectorFilter}
-            onChange={(e) => setSectorFilter(e.target.value as Sector | "all")}
-            aria-label="Filter sektor campaign"
-          >
-            <option value="all">Semua Sektor</option>
-            {SECTORS.map((s) => (
-              <option key={s} value={s}>
-                {SECTOR_LABEL[s]}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className={SELECT_FIELD}
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-            aria-label="Urutkan campaign"
-          >
-            <option value="newest">Terbaru</option>
-            <option value="oldest">Terlama</option>
-          </select>
+      {items.length > 0 && hasNiches && (
+        <div className="self-start flex rounded-full border border-white/15 bg-white/[0.07] p-1">
+          {(
+            [
+              { key: "niche", label: `Sesuai Niche Saya (${nicheCount})` },
+              { key: "all", label: `Semua Campaign (${items.length})` },
+            ] as const
+          ).map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              onClick={() => setScope(s.key)}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                scope === s.key ? "bg-[#A9DB1B] text-[#1B198F]" : "text-white/60 hover:text-white"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
         </div>
       )}
 
@@ -175,21 +136,19 @@ export default function DashboardOffers({
           Belum ada penawaran campaign. Cek lagi nanti ya!
         </div>
       ) : visibleItems.length === 0 ? (
+        // Only reachable while the niche toggle is narrowing the list: with it
+        // off, visibleItems is the full list the branch above already covered.
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center flex flex-col items-center gap-4">
           <p className="text-white/40 font-medium">
-            {nicheOnly
-              ? "Belum ada campaign yang cocok dengan niche kamu."
-              : "Tidak ada campaign di sektor ini."}
+            Belum ada campaign yang cocok dengan niche kamu.
           </p>
-          {nicheOnly && (
-            <button
-              type="button"
-              onClick={() => setScope("all")}
-              className="rounded-2xl bg-[#A9DB1B] hover:bg-[#c8f020] text-[#1B198F] font-bold px-6 py-3 text-sm transition-all"
-            >
-              Lihat Semua Campaign
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setScope("all")}
+            className="rounded-2xl bg-[#A9DB1B] hover:bg-[#c8f020] text-[#1B198F] font-bold px-6 py-3 text-sm transition-all"
+          >
+            Lihat Semua Campaign
+          </button>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
